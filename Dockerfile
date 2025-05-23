@@ -1,4 +1,3 @@
-Use an official Golang runtime as a parent image
 FROM golang:alpine
 LABEL authors="dinesh"
 
