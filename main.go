@@ -26,9 +26,9 @@ func main() {
 	}
 
 	// Auto migrate database schema
-	if err := db.AutoMigrate(database); err != nil {
-		log.Fatalf("Failed to migrate database schema: %v", err)
-	}
+	// if err := db.AutoMigrate(database); err != nil {
+	// 	log.Fatalf("Failed to migrate database schema: %v", err)
+	// }
 
 	// Initialize repositories
 	repos := repositories.NewRepositoriesInit(database)

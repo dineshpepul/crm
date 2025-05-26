@@ -28,7 +28,7 @@ func (r *GormLeadFieldConfigRepository) GetAllFieldConfigs() ([]models.LeadField
 // GetVisibleFieldConfigs retrieves visible field configurations
 func (r *GormLeadFieldConfigRepository) GetVisibleFieldConfigs() ([]models.LeadFieldConfig, error) {
 	var configs []models.LeadFieldConfig
-	if err := r.db.Where("is_visible = ?", true).Find(&configs).Error; err != nil {
+	if err := r.db.Where("visible = ?", true).Find(&configs).Error; err != nil {
 		return nil, err
 	}
 	return configs, nil
@@ -37,7 +37,7 @@ func (r *GormLeadFieldConfigRepository) GetVisibleFieldConfigs() ([]models.LeadF
 // GetRequiredFieldConfigs retrieves required field configurations
 func (r *GormLeadFieldConfigRepository) GetRequiredFieldConfigs() ([]models.LeadFieldConfig, error) {
 	var configs []models.LeadFieldConfig
-	if err := r.db.Where("is_required = ?", true).Find(&configs).Error; err != nil {
+	if err := r.db.Where("required = ?", true).Find(&configs).Error; err != nil {
 		return nil, err
 	}
 	return configs, nil
@@ -108,7 +108,7 @@ func (r *GormLeadFieldConfigRepository) GetAllFormSections() ([]models.LeadFormS
 // GetVisibleFormSections retrieves visible form sections
 func (r *GormLeadFieldConfigRepository) GetVisibleFormSections() ([]models.LeadFormSection, error) {
 	var sections []models.LeadFormSection
-	if err := r.db.Where("is_visible = ?", true).Find(&sections).Error; err != nil {
+	if err := r.db.Where("visible = ?", true).Find(&sections).Error; err != nil {
 		return nil, err
 	}
 	return sections, nil
