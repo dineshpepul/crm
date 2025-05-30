@@ -30,8 +30,8 @@ func (h *CRMDealHandler) GetDeals(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "100"))
 	stage := c.Query("stage")
 	assignedToStr := c.Query("assigned_to")
-	minAmountStr := c.Query("min_amount")
-	maxAmountStr := c.Query("max_amount")
+	minAmountStr := c.Query("amount")
+	maxAmountStr := c.Query("amount")
 
 	filters := make(map[string]interface{})
 
@@ -49,14 +49,14 @@ func (h *CRMDealHandler) GetDeals(c *gin.Context) {
 	if minAmountStr != "" {
 		minAmount, err := strconv.ParseFloat(minAmountStr, 64)
 		if err == nil {
-			filters["min_amount"] = minAmount
+			filters["amount"] = minAmount
 		}
 	}
 
 	if maxAmountStr != "" {
 		maxAmount, err := strconv.ParseFloat(maxAmountStr, 64)
 		if err == nil {
-			filters["max_amount"] = maxAmount
+			filters["amount"] = maxAmount
 		}
 	}
 
