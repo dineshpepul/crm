@@ -56,7 +56,7 @@ func (r *gormTargetRepository) CreateTarget(target *models.Target) error {
 
 // UpdateTarget updates an existing target
 func (r *gormTargetRepository) UpdateTarget(target *models.Target) error {
-	return r.db.Save(target).Error
+	return r.db.Omit("CreatedAt").Save(target).Error
 }
 
 // DeleteTarget deletes a target
