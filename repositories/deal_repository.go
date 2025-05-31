@@ -71,7 +71,7 @@ func (r *gormDealRepository) Create(deal *models.Deal) error {
 
 // Update updates an existing deal
 func (r *gormDealRepository) Update(deal *models.Deal) error {
-	return r.db.Save(deal).Error
+	return r.db.Omit("CreatedAt").Save(deal).Error
 }
 
 // Delete deletes a deal
