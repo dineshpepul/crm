@@ -1,4 +1,3 @@
-
 package models
 
 import (
@@ -13,7 +12,7 @@ type Deal struct {
 	LeadID            int            `json:"lead_id" gorm:"not null"`
 	Title             string         `json:"title" gorm:"size:255;not null"`
 	Amount            float64        `json:"amount"`
-	Currency          string         `json:"currency" gorm:"size:3;default:'USD'"`
+	Currency          string         `json:"currency" gorm:"size:20;default:'USD'"`
 	Stage             string         `json:"stage" gorm:"size:50;not null"`
 	Probability       int            `json:"probability"` // 0-100 percent
 	ExpectedCloseDate *time.Time     `json:"expected_close_date"`
