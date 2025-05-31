@@ -1,4 +1,3 @@
-
 package models
 
 import (
@@ -40,7 +39,7 @@ type LeadFormSection struct {
 
 // LeadCustomField stores custom field values for leads
 type LeadCustomField struct {
-	ID         uint      `json:"id" gorm:"primaryKey"`
+	// ID         uint      `json:"id" gorm:"primaryKey"`
 	LeadID     uint      `json:"lead_id" gorm:"not null"`
 	FieldID    uint      `json:"field_id" gorm:"not null"`
 	FieldName  string    `json:"field_name" gorm:"size:50;not null"` // For convenience and data integrity

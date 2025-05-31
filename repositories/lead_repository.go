@@ -56,7 +56,6 @@ func (r *gormLeadRepository) FindByID(id int) (*models.Lead, error) {
 // List returns all leads
 func (r *gormLeadRepository) List() ([]models.Lead, error) {
 	var leads []models.Lead
-
 	if err := r.db.Find(&leads).Error; err != nil {
 		return nil, err
 	}
@@ -94,6 +93,11 @@ func (r *gormLeadRepository) ListByStatus(status string) ([]models.Lead, error) 
 		return nil, err
 	}
 
+	var scoreTypes []models.ScoreType
+	if error := r.db.Find(&scoreTypes).Error; error != nil {
+		return nil, error
+	}
+
 	// Load related data for each lead (custom fields and tags)
 	for i := range leads {
 		var customFields []models.LeadCustomField
@@ -101,6 +105,22 @@ func (r *gormLeadRepository) ListByStatus(status string) ([]models.Lead, error) 
 			return nil, err
 		}
 		leads[i].CustomFields = customFields
+
+		matched := false
+
+		if leads[i].Score != nil {
+			for _, st := range scoreTypes {
+				if *leads[i].Score >= st.MinScore && *leads[i].Score <= st.MaxScore {
+					leads[i].Type = st.Type
+					matched = true
+					break
+				}
+			}
+		}
+
+		if !matched {
+			leads[i].Type = "cold"
+		}
 
 		var leadTags []models.LeadTag
 		if err := r.db.Where("lead_id = ?", leads[i].ID).Find(&leadTags).Error; err != nil {
