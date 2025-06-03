@@ -22,6 +22,7 @@ func SetupCRMRoutes(r *gin.Engine, repos *models.CRMRepositories) {
 	analyticsHandler := handlers.NewCRMAnalyticsHandler(repos)
 	targetHandler := handlers.NewCRMTargetHandler(repos)
 	leadFieldsHandler := handlers.NewCRMLeadFieldsHandler(repos)
+	LeadScoreHandler := handlers.NewScoreLeadHandler(repos)
 
 	// CRM API group
 	crm := r.Group("/api/crm")
@@ -53,6 +54,7 @@ func SetupCRMRoutes(r *gin.Engine, repos *models.CRMRepositories) {
 
 		// Lead assignment routes
 		leads.PUT("/:id/assign", middleware.JwtAuthMiddleware(), leadHandler.AssignLead)
+		leads.PUT("/updateScore", middleware.JwtAuthMiddleware(), LeadScoreHandler.UpdateScore)
 
 		// Bulk operations
 		leads.POST("/import", middleware.JwtAuthMiddleware(), leadHandler.BulkImportLeads)

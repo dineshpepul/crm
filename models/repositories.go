@@ -1,4 +1,3 @@
-
 package models
 
 import (
@@ -7,17 +6,18 @@ import (
 
 // Repositories contains all CRM repositories
 type Repositories struct {
-	db *gorm.DB
-	LeadRepo           LeadRepository
+	db                  *gorm.DB
+	LeadRepo            LeadRepository
 	LeadFieldConfigRepo LeadFieldConfigRepository
-	DealRepo           DealRepository
-	ContactRepo        ContactRepository
-	DashboardRepo      DashboardRepository
-	TargetRepo         TargetRepository
-	NurtureRepo        NurtureRepository
-	UserRepo           UserRepository
-	CampaignRepo       CampaignRepository
-	AnalyticsRepo      AnalyticsRepository
+	DealRepo            DealRepository
+	ContactRepo         ContactRepository
+	DashboardRepo       DashboardRepository
+	TargetRepo          TargetRepository
+	NurtureRepo         NurtureRepository
+	UserRepo            UserRepository
+	CampaignRepo        CampaignRepository
+	AnalyticsRepo       AnalyticsRepository
+	ScoreRepo           ScoreRepository
 }
 
 // NewRepositories initializes repositories

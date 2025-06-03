@@ -1,4 +1,3 @@
-
 package models
 
 import (
@@ -35,6 +34,10 @@ type LeadFieldConfigRepository interface {
 	DeleteFormSection(id int) error
 	ReorderFormSections(sectionIDs []int) error
 	GetFormStructure() (map[string]interface{}, error)
+}
+
+type ScoreRepository interface {
+	ScoreUpdateRepo(config []ScoreType) error
 }
 
 // ContactRepository interface for contact operations
@@ -122,7 +125,7 @@ type NurtureRepository interface {
 	UpdateEnrollment(enrollment *NurtureEnrollment) error
 	GetEnrollmentActivity(enrollmentID int) ([]NurtureActivity, error)
 	RecordActivity(activity *NurtureActivity) error
-	
+
 	// Campaign related methods
 	GetCampaigns(offset int, limit int) ([]Campaign, error)
 	GetCampaignByID(id int) (*Campaign, error)

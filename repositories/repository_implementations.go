@@ -19,6 +19,7 @@ func NewRepositoriesInit(db *gorm.DB) *models.Repositories {
 	repos.UserRepo = NewUserRepository(db)
 	repos.CampaignRepo = NewCampaignRepository(db)
 	repos.AnalyticsRepo = NewAnalyticsRepository(db)
+	repos.ScoreRepo = NewLeadScoreRepository(db)
 
 	return repos
 }
@@ -36,6 +37,7 @@ func NewCRMRepositories(db *gorm.DB) *models.CRMRepositories {
 		TargetRepo:          NewTargetRepository(db),
 		NurtureRepo:         NewNurtureRepository(db),
 		UserRepo:            NewUserRepository(db),
+		LeadScoreType:       NewLeadScoreRepository(db),
 	}
 }
 
@@ -71,6 +73,10 @@ type gormNurtureRepository struct {
 
 type gormUserRepository struct {
 	db *gorm.DB
+}
+
+type GormScoreRepository struct {
+	DB *gorm.DB
 }
 
 // NewLeadRepository creates a new lead repository
@@ -121,4 +127,8 @@ func NewUserRepository(db *gorm.DB) models.UserRepository {
 // NewNurtureRepository creates a new nurture repository
 func NewNurtureRepository(db *gorm.DB) models.NurtureRepository {
 	return &gormNurtureRepository{db: db}
+}
+
+func NewLeadScoreRepository(db *gorm.DB) models.ScoreRepository {
+	return &GormScoreRepository{DB: db}
 }
