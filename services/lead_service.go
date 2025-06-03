@@ -18,8 +18,8 @@ func NewLeadService(repos *models.Repositories) *LeadService {
 }
 
 // GetLeads retrieves leads with optional filters
-func (s *LeadService) GetLeads() ([]models.Lead, error) {
-	return s.repos.LeadRepo.List()
+func (s *LeadService) GetLeads(companyId int) ([]models.Lead, error) {
+	return s.repos.LeadRepo.List(companyId)
 }
 
 // GetLeadByID retrieves a lead by ID
@@ -30,7 +30,7 @@ func (s *LeadService) GetLeadByID(id int) (*models.Lead, error) {
 // CreateLead creates a new lead with validation
 func (s *LeadService) CreateLead(lead *models.Lead) error {
 	// Get required fields for validation
-	requiredFields, err := s.getRequiredFieldNames()
+	requiredFields, err := s.getRequiredFieldNames(lead.CompanyId)
 	if err != nil {
 		return err
 	}
@@ -113,18 +113,18 @@ func (s *LeadService) GetLeadsByAssignee(assigneeID int) ([]models.Lead, error) 
 }
 
 // GetAllFieldConfigs retrieves all field configurations
-func (s *LeadService) GetAllFieldConfigs() ([]models.LeadFieldConfig, error) {
-	return s.repos.LeadFieldConfigRepo.GetAllFieldConfigs()
+func (s *LeadService) GetAllFieldConfigs(companyId int) ([]models.LeadFieldConfig, error) {
+	return s.repos.LeadFieldConfigRepo.GetAllFieldConfigs(companyId)
 }
 
 // GetVisibleFieldConfigs retrieves visible field configurations
-func (s *LeadService) GetVisibleFieldConfigs() ([]models.LeadFieldConfig, error) {
-	return s.repos.LeadFieldConfigRepo.GetVisibleFieldConfigs()
+func (s *LeadService) GetVisibleFieldConfigs(companyId int) ([]models.LeadFieldConfig, error) {
+	return s.repos.LeadFieldConfigRepo.GetVisibleFieldConfigs(companyId)
 }
 
 // GetRequiredFieldConfigs retrieves required field configurations
-func (s *LeadService) GetRequiredFieldConfigs() ([]models.LeadFieldConfig, error) {
-	return s.repos.LeadFieldConfigRepo.GetRequiredFieldConfigs()
+func (s *LeadService) GetRequiredFieldConfigs(companyId int) ([]models.LeadFieldConfig, error) {
+	return s.repos.LeadFieldConfigRepo.GetRequiredFieldConfigs(companyId)
 }
 
 // GetFieldConfigsBySection retrieves field configurations by section
@@ -153,13 +153,13 @@ func (s *LeadService) ReorderFormFields(fieldIDs []uint) error {
 }
 
 // GetAllFormSections retrieves all form sections
-func (s *LeadService) GetAllFormSections() ([]models.LeadFormSection, error) {
-	return s.repos.LeadFieldConfigRepo.GetAllFormSections()
+func (s *LeadService) GetAllFormSections(companyId int) ([]models.LeadFormSection, error) {
+	return s.repos.LeadFieldConfigRepo.GetAllFormSections(companyId)
 }
 
 // GetVisibleFormSections retrieves visible form sections
-func (s *LeadService) GetVisibleFormSections() ([]models.LeadFormSection, error) {
-	return s.repos.LeadFieldConfigRepo.GetVisibleFormSections()
+func (s *LeadService) GetVisibleFormSections(companyId int) ([]models.LeadFormSection, error) {
+	return s.repos.LeadFieldConfigRepo.GetVisibleFormSections(companyId)
 }
 
 // CreateFormSection creates a new form section
@@ -192,14 +192,14 @@ func (s *LeadService) BulkImportLeads(leads []models.Lead) (map[string]interface
 }
 
 // ExportLeads exports leads - stub method to be implemented
-func (s *LeadService) ExportLeads(filters map[string]string) ([]models.Lead, error) {
+func (s *LeadService) ExportLeads(filters map[string]string, companyId int) ([]models.Lead, error) {
 	// Implementation would go here
-	return s.repos.LeadRepo.List()
+	return s.repos.LeadRepo.List(companyId)
 }
 
 // Helper function to get required field names
-func (s *LeadService) getRequiredFieldNames() ([]string, error) {
-	configs, err := s.repos.LeadFieldConfigRepo.GetRequiredFieldConfigs()
+func (s *LeadService) getRequiredFieldNames(companyId int) ([]string, error) {
+	configs, err := s.repos.LeadFieldConfigRepo.GetRequiredFieldConfigs(companyId)
 	if err != nil {
 		return nil, err
 	}

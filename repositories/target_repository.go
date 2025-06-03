@@ -157,9 +157,9 @@ func (r *gormTargetRepository) GetTargetProgress(id int) (map[string]interface{}
 }
 
 // GetAllTargetProgress gets progress for all active targets
-func (r *gormTargetRepository) GetAllTargetProgress() ([]map[string]interface{}, error) {
+func (r *gormTargetRepository) GetAllTargetProgress(companyId int) ([]map[string]interface{}, error) {
 	var targets []models.Target
-	if err := r.db.Where("status = ?", "active").Find(&targets).Error; err != nil {
+	if err := r.db.Where("status = ? AND company_id=?", "active", companyId).Find(&targets).Error; err != nil {
 		return nil, err
 	}
 

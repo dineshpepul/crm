@@ -1,4 +1,3 @@
-
 package models
 
 import (
@@ -8,7 +7,7 @@ import (
 // LeadRepository interface for lead operations
 type LeadRepository interface {
 	FindByID(id int) (*Lead, error)
-	List() ([]Lead, error)
+	List(companyId int) ([]Lead, error)
 	ListByStatus(status string) ([]Lead, error)
 	ListByAssignee(assigneeID int) ([]Lead, error)
 	Create(lead *Lead) error
@@ -19,44 +18,44 @@ type LeadRepository interface {
 
 // LeadFieldConfigRepository interface for lead field configuration
 type LeadFieldConfigRepository interface {
-	GetAllFieldConfigs() ([]LeadFieldConfig, error)
-	GetVisibleFieldConfigs() ([]LeadFieldConfig, error)
-	GetRequiredFieldConfigs() ([]LeadFieldConfig, error)
+	GetAllFieldConfigs(companyId int) ([]LeadFieldConfig, error)
+	GetVisibleFieldConfigs(companyId int) ([]LeadFieldConfig, error)
+	GetRequiredFieldConfigs(companyId int) ([]LeadFieldConfig, error)
 	GetFieldConfigsBySection(section string) ([]LeadFieldConfig, error)
 	GetFieldConfig(id int) (*LeadFieldConfig, error)
 	CreateFieldConfig(config *LeadFieldConfig) error
 	UpdateFieldConfig(config *LeadFieldConfig) error
 	DeleteFieldConfig(id uint) error
 	ReorderFormFields(fieldIDs []uint) error
-	GetAllFormSections() ([]LeadFormSection, error)
-	GetVisibleFormSections() ([]LeadFormSection, error)
+	GetAllFormSections(companyId int) ([]LeadFormSection, error)
+	GetVisibleFormSections(companyId int) ([]LeadFormSection, error)
 	CreateFormSection(section *LeadFormSection) error
 	UpdateFormSection(section *LeadFormSection) error
 	DeleteFormSection(id int) error
 	ReorderFormSections(sectionIDs []int) error
-	GetFormStructure() (map[string]interface{}, error)
+	GetFormStructure(companyId int) (map[string]interface{}, error)
 }
 
 // ContactRepository interface for contact operations
 type ContactRepository interface {
 	FindByID(id int) (*Contact, error)
-	List(offset int, limit int) ([]Contact, error)
+	List(offset int, limit int, companyId int) ([]Contact, error)
 	FindByLead(leadID int) ([]Contact, error)
 	Create(contact *Contact) error
 	Update(contact *Contact) error
 	Delete(id int) error
-	Search(query string) ([]Contact, error)
+	Search(query string, companyId int) ([]Contact, error)
 }
 
 // DealRepository interface for deal operations
 type DealRepository interface {
 	FindByID(id int) (*Deal, error)
-	List(offset int, limit int, filters map[string]interface{}) ([]Deal, error)
+	List(offset int, limit int, filters map[string]interface{}, companyId int) ([]Deal, error)
 	FindByLead(leadID int) ([]Deal, error)
 	Create(deal *Deal) error
 	Update(deal *Deal) error
 	Delete(id int) error
-	GetDealPipeline() ([]map[string]interface{}, error)
+	GetDealPipeline(companyId int) ([]map[string]interface{}, error)
 }
 
 // CampaignRepository interface for campaign operations
@@ -79,11 +78,11 @@ type CampaignRepository interface {
 
 // DashboardRepository interface for dashboard operations
 type DashboardRepository interface {
-	GetDashboardSummary() (map[string]interface{}, error)
-	GetLeadsBySource() ([]map[string]interface{}, error)
-	GetLeadsByStatus() ([]map[string]interface{}, error)
-	GetRevenueByMonth(year int) ([]map[string]interface{}, error)
-	GetSalesForecast(months int) ([]map[string]interface{}, error)
+	GetDashboardSummary(companyId int) (map[string]interface{}, error)
+	GetLeadsBySource(companyId int) ([]map[string]interface{}, error)
+	GetLeadsByStatus(companyId int) ([]map[string]interface{}, error)
+	GetRevenueByMonth(year int, companyId int) ([]map[string]interface{}, error)
+	GetSalesForecast(months int, companyId int) ([]map[string]interface{}, error)
 }
 
 // AnalyticsRepository interface for analytics operations
@@ -103,7 +102,7 @@ type TargetRepository interface {
 	UpdateTarget(target *Target) error
 	DeleteTarget(id int) error
 	GetTargetProgress(id int) (map[string]interface{}, error)
-	GetAllTargetProgress() ([]map[string]interface{}, error)
+	GetAllTargetProgress(companyId int) ([]map[string]interface{}, error)
 }
 
 // NurtureRepository interface for nurture sequences
@@ -122,9 +121,9 @@ type NurtureRepository interface {
 	UpdateEnrollment(enrollment *NurtureEnrollment) error
 	GetEnrollmentActivity(enrollmentID int) ([]NurtureActivity, error)
 	RecordActivity(activity *NurtureActivity) error
-	
+
 	// Campaign related methods
-	GetCampaigns(offset int, limit int) ([]Campaign, error)
+	GetCampaigns(offset int, limit int, companyId int) ([]Campaign, error)
 	GetCampaignByID(id int) (*Campaign, error)
 	CreateCampaign(campaign *Campaign) error
 	UpdateCampaign(campaign *Campaign) error
@@ -133,7 +132,7 @@ type NurtureRepository interface {
 	GetLeadsForCampaign(id int) ([]Lead, error)
 	AssignLeadsToCampaign(campaignID int, leadIDs []int) error
 	RemoveLeadsFromCampaign(campaignID int, leadIDs []int) error
-	GetTemplates(offset int, limit int) ([]CampaignTemplate, error)
+	GetTemplates(offset int, limit int, companyId int) ([]CampaignTemplate, error)
 	GetTemplateByID(id int) (*CampaignTemplate, error)
 	CreateTemplate(template *CampaignTemplate) error
 	UpdateTemplate(template *CampaignTemplate) error

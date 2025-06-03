@@ -27,8 +27,14 @@ func NewCRMNurtureHandler(repos *models.CRMRepositories) *CRMNurtureHandler {
 func (h *CRMNurtureHandler) GetCampaigns(c *gin.Context) {
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "100"))
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 
-	campaigns, err := h.nurtureRepo.GetCampaigns(offset, limit)
+	campaigns, err := h.nurtureRepo.GetCampaigns(offset, limit, companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch campaigns"})
 		return
@@ -277,8 +283,14 @@ func (h *CRMNurtureHandler) RemoveLeadsFromCampaign(c *gin.Context) {
 func (h *CRMNurtureHandler) GetTemplates(c *gin.Context) {
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "100"))
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 
-	templates, err := h.nurtureRepo.GetTemplates(offset, limit)
+	templates, err := h.nurtureRepo.GetTemplates(offset, limit, companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch templates"})
 		return

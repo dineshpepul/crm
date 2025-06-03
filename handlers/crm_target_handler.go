@@ -196,7 +196,13 @@ func (h *CRMTargetHandler) GetTargetProgress(c *gin.Context) {
 
 // GetAllTargetProgress returns progress for all active targets
 func (h *CRMTargetHandler) GetAllTargetProgress(c *gin.Context) {
-	progress, err := h.targetRepo.GetAllTargetProgress()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	progress, err := h.targetRepo.GetAllTargetProgress(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch target progress"})
 		return

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -29,9 +30,14 @@ func (h *CRMLeadHandler) GetLeads(c *gin.Context) {
 	// Handle query parameters for filtering
 	status := c.Query("status")
 	assignedToStr := c.Query("assigned_to")
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 
 	var leads []models.Lead
-	var err error
 
 	// Apply filters if provided
 	if status != "" {
@@ -44,7 +50,7 @@ func (h *CRMLeadHandler) GetLeads(c *gin.Context) {
 		}
 		leads, err = h.leadRepo.ListByAssignee(assignedTo)
 	} else {
-		leads, err = h.leadRepo.List()
+		leads, err = h.leadRepo.List(companyId)
 	}
 
 	if err != nil {
@@ -87,7 +93,7 @@ func (h *CRMLeadHandler) CreateLead(c *gin.Context) {
 	}
 
 	// Get required field configs
-	requiredConfigs, err := h.fieldConfigRepo.GetRequiredFieldConfigs()
+	requiredConfigs, err := h.fieldConfigRepo.GetRequiredFieldConfigs(lead.CompanyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch field configurations"})
 		return
@@ -340,7 +346,8 @@ func (h *CRMLeadHandler) BulkImportLeads(c *gin.Context) {
 	}
 
 	// Get required field configs
-	requiredConfigs, err := h.fieldConfigRepo.GetRequiredFieldConfigs()
+	requiredConfigs, err := h.fieldConfigRepo.GetRequiredFieldConfigs(leads[0].CompanyId)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch field configurations"})
 		return
@@ -351,7 +358,7 @@ func (h *CRMLeadHandler) BulkImportLeads(c *gin.Context) {
 	for i, config := range requiredConfigs {
 		requiredFields[i] = config.FieldName
 	}
-
+	fmt.Println("requiredConfigs", requiredConfigs)
 	// Process each lead
 	results := make([]map[string]interface{}, 0, len(leads))
 	successCount := 0
@@ -399,6 +406,12 @@ func (h *CRMLeadHandler) ExportLeads(c *gin.Context) {
 	// Handle query parameters for filtering
 	status := c.Query("status")
 	assignedToStr := c.Query("assigned_to")
+	companyIdStr := c.Query("companyId")
+	companyId, err1 := strconv.Atoi(companyIdStr)
+	if err1 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 
 	var leads []models.Lead
 	var err error
@@ -414,7 +427,7 @@ func (h *CRMLeadHandler) ExportLeads(c *gin.Context) {
 		}
 		leads, err = h.leadRepo.ListByAssignee(assignedTo)
 	} else {
-		leads, err = h.leadRepo.List()
+		leads, err = h.leadRepo.List(companyId)
 	}
 
 	if err != nil {
@@ -423,7 +436,7 @@ func (h *CRMLeadHandler) ExportLeads(c *gin.Context) {
 	}
 
 	// Get all field configurations for complete data export
-	fieldConfigs, err := h.fieldConfigRepo.GetAllFieldConfigs()
+	fieldConfigs, err := h.fieldConfigRepo.GetAllFieldConfigs(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch field configurations"})
 		return
@@ -442,7 +455,13 @@ func (h *CRMLeadHandler) ExportLeads(c *gin.Context) {
 
 // GetAllFormSections returns all form sections
 func (h *CRMLeadHandler) GetAllFormSections(c *gin.Context) {
-	sections, err := h.fieldConfigRepo.GetAllFormSections()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	sections, err := h.fieldConfigRepo.GetAllFormSections(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch form sections"})
 		return
@@ -453,7 +472,13 @@ func (h *CRMLeadHandler) GetAllFormSections(c *gin.Context) {
 
 // GetVisibleFormSections returns visible form sections
 func (h *CRMLeadHandler) GetVisibleFormSections(c *gin.Context) {
-	sections, err := h.fieldConfigRepo.GetVisibleFormSections()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	sections, err := h.fieldConfigRepo.GetVisibleFormSections(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch visible form sections"})
 		return

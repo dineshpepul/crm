@@ -31,7 +31,7 @@ func (r *gormDealRepository) FindByID(id int) (*models.Deal, error) {
 }
 
 // List returns deals with pagination and filters
-func (r *gormDealRepository) List(offset int, limit int, filters map[string]interface{}) ([]models.Deal, error) {
+func (r *gormDealRepository) List(offset int, limit int, filters map[string]interface{}, companyId int) ([]models.Deal, error) {
 	var deals []models.Deal
 	query := r.db
 
@@ -49,7 +49,7 @@ func (r *gormDealRepository) List(offset int, limit int, filters map[string]inte
 		query = query.Offset(offset)
 	}
 
-	if err := query.Find(&deals).Error; err != nil {
+	if err := query.Where("company_id=?", companyId).Find(&deals).Error; err != nil {
 		return nil, err
 	}
 	return deals, nil
@@ -80,7 +80,7 @@ func (r *gormDealRepository) Delete(id int) error {
 }
 
 // GetDealPipeline returns the deal pipeline statistics
-func (r *gormDealRepository) GetDealPipeline() ([]map[string]interface{}, error) {
+func (r *gormDealRepository) GetDealPipeline(companyId int) ([]map[string]interface{}, error) {
 	type PipelineStage struct {
 		Stage      string  `json:"stage"`
 		Count      int     `json:"count"`
@@ -91,6 +91,7 @@ func (r *gormDealRepository) GetDealPipeline() ([]map[string]interface{}, error)
 
 	if err := r.db.Model(&models.Deal{}).
 		Select("stage, COUNT(*) as count, SUM(amount) as total_value").
+		Where("company_id = ?", companyId).
 		Group("stage").
 		Order("FIELD(stage, 'lead', 'qualified', 'proposal', 'negotiation', 'closed_won', 'closed_lost')").
 		Find(&results).Error; err != nil {

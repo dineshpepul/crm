@@ -31,7 +31,7 @@ func (r *GormContactRepository) FindByID(id int) (*models.Contact, error) {
 }
 
 // List returns contacts with pagination
-func (r *GormContactRepository) List(offset int, limit int) ([]models.Contact, error) {
+func (r *GormContactRepository) List(offset int, limit int, companyId int) ([]models.Contact, error) {
 	var contacts []models.Contact
 	query := r.db
 
@@ -42,7 +42,7 @@ func (r *GormContactRepository) List(offset int, limit int) ([]models.Contact, e
 		query = query.Offset(offset)
 	}
 
-	if err := query.Find(&contacts).Error; err != nil {
+	if err := query.Where("company_id = ?", companyId).Find(&contacts).Error; err != nil {
 		return nil, err
 	}
 	return contacts, nil
@@ -73,9 +73,9 @@ func (r *GormContactRepository) Delete(id int) error {
 }
 
 // Search searches for contacts
-func (r *GormContactRepository) Search(query string) ([]models.Contact, error) {
+func (r *GormContactRepository) Search(query string, companyId int) ([]models.Contact, error) {
 	var contacts []models.Contact
-	if err := r.db.Where("name LIKE ? OR email LIKE ?", "%"+query+"%", "%"+query+"%").Find(&contacts).Error; err != nil {
+	if err := r.db.Where("(name LIKE ? OR email LIKE ?) AND company_id = ?", "%"+query+"%", "%"+query+"%", companyId).Find(&contacts).Error; err != nil {
 		return nil, err
 	}
 	return contacts, nil

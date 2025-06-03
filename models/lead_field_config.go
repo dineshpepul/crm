@@ -21,6 +21,7 @@ type LeadFieldConfig struct {
 	ValidationMsg string    `json:"validation_msg" gorm:"size:255"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
+	CompanyId     int       `json:"company_id" gorm:"not null"`
 }
 
 // LeadFormSection defines sections in the lead form

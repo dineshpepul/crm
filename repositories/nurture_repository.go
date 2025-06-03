@@ -104,9 +104,9 @@ func (r *gormNurtureRepository) RecordActivity(activity *models.NurtureActivity)
 // Campaign related methods
 
 // GetCampaigns returns campaigns
-func (r *gormNurtureRepository) GetCampaigns(offset int, limit int) ([]models.Campaign, error) {
+func (r *gormNurtureRepository) GetCampaigns(offset int, limit int, companyId int) ([]models.Campaign, error) {
 	var campaigns []models.Campaign
-	err := r.db.Offset(offset).Limit(limit).Find(&campaigns).Error
+	err := r.db.Where("company_id = ?", companyId).Offset(offset).Limit(limit).Find(&campaigns).Error
 	return campaigns, err
 }
 
@@ -190,9 +190,9 @@ func (r *gormNurtureRepository) RemoveLeadsFromCampaign(campaignID int, leadIDs 
 }
 
 // GetTemplates returns campaign templates
-func (r *gormNurtureRepository) GetTemplates(offset int, limit int) ([]models.CampaignTemplate, error) {
+func (r *gormNurtureRepository) GetTemplates(offset int, limit int, companyId int) ([]models.CampaignTemplate, error) {
 	var templates []models.CampaignTemplate
-	err := r.db.Offset(offset).Limit(limit).Find(&templates).Error
+	err := r.db.Where("company_id= ? ", companyId).Offset(offset).Limit(limit).Find(&templates).Error
 	return templates, err
 }
 
