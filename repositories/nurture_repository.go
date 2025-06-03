@@ -159,10 +159,10 @@ func (r *gormNurtureRepository) GetCampaignStats(id int) (map[string]interface{}
 // GetLeadsForCampaign returns leads for a campaign
 func (r *gormNurtureRepository) GetLeadsForCampaign(id int) ([]models.Lead, error) {
 	var leads []models.Lead
-	err := r.db.Table("lead_campaigns").
+	err := r.db.Table("campaign_leads").
 		Select("leads.*").
-		Joins("JOIN leads ON lead_campaigns.lead_id = leads.id").
-		Where("lead_campaigns.campaign_id = ?", id).
+		Joins("JOIN leads ON campaign_leads.lead_id = leads.id").
+		Where("campaign_leads.campaign_id = ?", id).
 		Find(&leads).Error
 	return leads, err
 }
@@ -175,7 +175,7 @@ func (r *gormNurtureRepository) AssignLeadsToCampaign(campaignID int, leadIDs []
 	}
 
 	for _, leadID := range leadIDs {
-		if err := tx.Exec("INSERT INTO lead_campaigns (campaign_id, lead_id) VALUES (?, ?)", campaignID, leadID).Error; err != nil {
+		if err := tx.Exec("INSERT INTO campaign_leads (campaign_id, lead_id) VALUES (?, ?)", campaignID, leadID).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -186,7 +186,7 @@ func (r *gormNurtureRepository) AssignLeadsToCampaign(campaignID int, leadIDs []
 
 // RemoveLeadsFromCampaign removes leads from a campaign
 func (r *gormNurtureRepository) RemoveLeadsFromCampaign(campaignID int, leadIDs []int) error {
-	return r.db.Where("campaign_id = ? AND lead_id IN ?", campaignID, leadIDs).Delete("lead_campaigns").Error
+	return r.db.Where("campaign_id = ? AND lead_id IN ?", campaignID, leadIDs).Delete("campaign_leads").Error
 }
 
 // GetTemplates returns campaign templates
