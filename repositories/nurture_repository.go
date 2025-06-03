@@ -130,7 +130,7 @@ func (r *gormNurtureRepository) CreateCampaign(campaign *models.Campaign) error 
 
 // UpdateCampaign updates a campaign
 func (r *gormNurtureRepository) UpdateCampaign(campaign *models.Campaign) error {
-	return r.db.Save(campaign).Error
+	return r.db.Omit("CreatedAt").Save(campaign).Error
 }
 
 // DeleteCampaign deletes a campaign
