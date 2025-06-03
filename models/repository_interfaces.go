@@ -96,12 +96,12 @@ type AnalyticsRepository interface {
 
 // TargetRepository interface for sales target operations
 type TargetRepository interface {
-	GetTargets(filters map[string]interface{}) ([]Target, error)
+	GetTargets(filters map[string]interface{}, companyId int) ([]Target, error)
 	GetTargetByID(id int) (*Target, error)
 	CreateTarget(target *Target) error
 	UpdateTarget(target *Target) error
 	DeleteTarget(id int) error
-	GetTargetProgress(id int) (map[string]interface{}, error)
+	GetTargetProgress(id int, companyId int) (map[string]interface{}, error)
 	GetAllTargetProgress(companyId int) ([]map[string]interface{}, error)
 }
 

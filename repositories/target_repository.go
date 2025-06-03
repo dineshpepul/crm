@@ -19,7 +19,7 @@ import (
 // }
 
 // GetTargets returns targets with filters
-func (r *gormTargetRepository) GetTargets(filters map[string]interface{}) ([]models.Target, error) {
+func (r *gormTargetRepository) GetTargets(filters map[string]interface{}, companyId int) ([]models.Target, error) {
 	var targets []models.Target
 	query := r.db
 
@@ -30,7 +30,7 @@ func (r *gormTargetRepository) GetTargets(filters map[string]interface{}) ([]mod
 		}
 	}
 
-	if err := query.Find(&targets).Error; err != nil {
+	if err := query.Where("company_id=?", companyId).Find(&targets).Error; err != nil {
 		return nil, err
 	}
 	return targets, nil
@@ -65,9 +65,9 @@ func (r *gormTargetRepository) DeleteTarget(id int) error {
 }
 
 // GetTargetProgress gets the progress toward a target
-func (r *gormTargetRepository) GetTargetProgress(id int) (map[string]interface{}, error) {
+func (r *gormTargetRepository) GetTargetProgress(id int, companyId int) (map[string]interface{}, error) {
 	var target models.Target
-	if err := r.db.First(&target, id).Error; err != nil {
+	if err := r.db.Where("company_id=?", companyId).First(&target, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -85,7 +85,7 @@ func (r *gormTargetRepository) GetTargetProgress(id int) (map[string]interface{}
 		}
 		if err := r.db.Model(&models.Deal{}).
 			Select("COALESCE(SUM(amount), 0) as value").
-			Where("stage = ? AND created_at BETWEEN ? AND ?", "closed_won", target.StartDate, target.EndDate).
+			Where("company_id = ? AND stage = ? AND created_at BETWEEN ? AND ?", companyId, "closed_won", target.StartDate, target.EndDate).
 			Scan(&result).Error; err != nil {
 			return nil, err
 		}
@@ -95,7 +95,7 @@ func (r *gormTargetRepository) GetTargetProgress(id int) (map[string]interface{}
 		// Count leads created in the target period
 		var count int64
 		if err := r.db.Model(&models.Lead{}).
-			Where("created_at BETWEEN ? AND ?", target.StartDate, target.EndDate).
+			Where("company_id = ? AND created_at BETWEEN ? AND ?", companyId, target.StartDate, target.EndDate).
 			Count(&count).Error; err != nil {
 			return nil, err
 		}
@@ -105,7 +105,7 @@ func (r *gormTargetRepository) GetTargetProgress(id int) (map[string]interface{}
 		// Count deals created in the target period
 		var count int64
 		if err := r.db.Model(&models.Deal{}).
-			Where("created_at BETWEEN ? AND ?", target.StartDate, target.EndDate).
+			Where("company_id = ? AND created_at BETWEEN ? AND ?", companyId, target.StartDate, target.EndDate).
 			Count(&count).Error; err != nil {
 			return nil, err
 		}
@@ -113,7 +113,7 @@ func (r *gormTargetRepository) GetTargetProgress(id int) (map[string]interface{}
 	}
 
 	// Update the actual value in the database
-	if err := r.db.Model(&target).Update("actual_value", actualValue).Error; err != nil {
+	if err := r.db.Model(&target).Where("company_id = ?", companyId).Update("actual_value", actualValue).Error; err != nil {
 		return nil, err
 	}
 
@@ -166,7 +166,7 @@ func (r *gormTargetRepository) GetAllTargetProgress(companyId int) ([]map[string
 	progress := make([]map[string]interface{}, 0, len(targets))
 
 	for _, target := range targets {
-		targetProgress, err := r.GetTargetProgress(target.ID)
+		targetProgress, err := r.GetTargetProgress(target.ID, companyId)
 		if err != nil {
 			return nil, err
 		}
