@@ -60,6 +60,7 @@ func main() {
 		TargetRepo:          repos.TargetRepo,
 		NurtureRepo:         repos.NurtureRepo,
 		UserRepo:            repos.UserRepo,
+		LeadScoreType:       repos.ScoreRepo,
 	}
 	routes.SetupCRMRoutes(r, crmRepos)
 
