@@ -17,12 +17,37 @@ type CRMLeadHandler struct {
 	fieldConfigRepo models.LeadFieldConfigRepository
 }
 
+type CRMScoreHandler struct {
+	scoreUpdateRepo models.ScoreRepository
+}
+
 // NewCRMLeadHandler creates a new lead handler
 func NewCRMLeadHandler(repos *models.CRMRepositories) *CRMLeadHandler {
 	return &CRMLeadHandler{
 		leadRepo:        repos.LeadRepo,
 		fieldConfigRepo: repos.LeadFieldConfigRepo,
 	}
+}
+
+func NewScoreLeadHandler(repos *models.CRMRepositories) *CRMScoreHandler {
+	return &CRMScoreHandler{
+		scoreUpdateRepo: repos.LeadScoreType,
+	}
+}
+
+func (h *CRMScoreHandler) UpdateScore(c *gin.Context) {
+	var config []models.ScoreType
+	if err := c.ShouldBindJSON(&config); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.scoreUpdateRepo.ScoreUpdateRepo(config); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign lead"})
+		return
+	}
+
+	c.JSON(http.StatusOK, config)
 }
 
 // GetLeads returns all leads

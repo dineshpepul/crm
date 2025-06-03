@@ -222,3 +222,12 @@ func (r *GormLeadFieldConfigRepository) GetFormStructure(companyId int) (map[str
 	result["sections"] = sectionsList
 	return result, nil
 }
+
+func (r *GormScoreRepository) ScoreUpdateRepo(config []models.ScoreType) error {
+	for _, config := range config {
+		if err := r.DB.Save(&config).Error; err != nil {
+			return err // or collect all errors if you want to return multiple
+		}
+	}
+	return nil
+}
