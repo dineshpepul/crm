@@ -20,7 +20,7 @@ func Init() (*gorm.DB, error) {
 	dbPassword := getEnvOrDefault("DB_PASSWORD", "root")
 	dbHost := getEnvOrDefault("DB_HOST", "localhost")
 	dbPort := getEnvOrDefault("DB_PORT", "8889")
-	dbName := getEnvOrDefault("DB_NAME", "crm4")
+	dbName := getEnvOrDefault("DB_NAME", "crmgo")
 
 	// Create the connection string
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",

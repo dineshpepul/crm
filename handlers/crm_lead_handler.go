@@ -357,20 +357,20 @@ func (h *CRMLeadHandler) AssignLead(c *gin.Context) {
 	c.JSON(http.StatusOK, lead)
 }
 
-func (h *CRMScoreHandler) UpdateScore(c *gin.Context) {
-	var config []models.ScoreType
-	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// func (h *CRMScoreHandler) UpdateScore(c *gin.Context) {
+// 	var config []models.ScoreType
+// 	if err := c.ShouldBindJSON(&config); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	if err := h.scoreUpdateRepo.ScoreUpdateRepo(config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign lead"})
-		return
-	}
+// 	if err := h.scoreUpdateRepo.ScoreUpdateRepo(config); err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign lead"})
+// 		return
+// 	}
 
-	c.JSON(http.StatusOK, config)
-}
+// 	c.JSON(http.StatusOK, config)
+// }
 
 // BulkImportLeads imports multiple leads from a JSON array
 func (h *CRMLeadHandler) BulkImportLeads(c *gin.Context) {
