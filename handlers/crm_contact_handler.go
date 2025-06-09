@@ -27,8 +27,14 @@ func NewCRMContactHandler(repos *models.CRMRepositories) *CRMContactHandler {
 func (h *CRMContactHandler) GetContacts(c *gin.Context) {
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "100"))
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 
-	contacts, err := h.contactRepo.List(offset, limit)
+	contacts, err := h.contactRepo.List(offset, limit, companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch contacts"})
 		return
@@ -188,12 +194,18 @@ func (h *CRMContactHandler) GetContactsByLead(c *gin.Context) {
 // SearchContacts searches contacts by name or email
 func (h *CRMContactHandler) SearchContacts(c *gin.Context) {
 	query := c.Query("q")
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 	if query == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Search query is required"})
 		return
 	}
 
-	contacts, err := h.contactRepo.Search(query)
+	contacts, err := h.contactRepo.Search(query, companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search contacts"})
 		return

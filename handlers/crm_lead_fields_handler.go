@@ -23,7 +23,13 @@ func NewCRMLeadFieldsHandler(repos *models.CRMRepositories) *CRMLeadFieldsHandle
 
 // GetAllFieldConfigs returns all field configs
 func (h *CRMLeadFieldsHandler) GetAllFieldConfigs(c *gin.Context) {
-	configs, err := h.fieldConfigRepo.GetAllFieldConfigs()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	configs, err := h.fieldConfigRepo.GetAllFieldConfigs(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch field configurations"})
 		return
@@ -34,7 +40,13 @@ func (h *CRMLeadFieldsHandler) GetAllFieldConfigs(c *gin.Context) {
 
 // GetVisibleFieldConfigs returns visible field configs
 func (h *CRMLeadFieldsHandler) GetVisibleFieldConfigs(c *gin.Context) {
-	configs, err := h.fieldConfigRepo.GetVisibleFieldConfigs()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	configs, err := h.fieldConfigRepo.GetVisibleFieldConfigs(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch visible field configurations"})
 		return
@@ -45,7 +57,13 @@ func (h *CRMLeadFieldsHandler) GetVisibleFieldConfigs(c *gin.Context) {
 
 // GetRequiredFieldConfigs returns required field configs
 func (h *CRMLeadFieldsHandler) GetRequiredFieldConfigs(c *gin.Context) {
-	configs, err := h.fieldConfigRepo.GetRequiredFieldConfigs()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	configs, err := h.fieldConfigRepo.GetRequiredFieldConfigs(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch required field configurations"})
 		return
@@ -175,7 +193,13 @@ func (h *CRMLeadFieldsHandler) ReorderFormFields(c *gin.Context) {
 
 // GetAllFormSections returns all form sections
 func (h *CRMLeadFieldsHandler) GetAllFormSections(c *gin.Context) {
-	sections, err := h.fieldConfigRepo.GetAllFormSections()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	sections, err := h.fieldConfigRepo.GetAllFormSections(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch form sections"})
 		return
@@ -186,7 +210,13 @@ func (h *CRMLeadFieldsHandler) GetAllFormSections(c *gin.Context) {
 
 // GetVisibleFormSections returns visible form sections
 func (h *CRMLeadFieldsHandler) GetVisibleFormSections(c *gin.Context) {
-	sections, err := h.fieldConfigRepo.GetVisibleFormSections()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	sections, err := h.fieldConfigRepo.GetVisibleFormSections(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch visible form sections"})
 		return
@@ -274,7 +304,13 @@ func (h *CRMLeadFieldsHandler) ReorderFormSections(c *gin.Context) {
 
 // GetFormStructure returns the complete form structure
 func (h *CRMLeadFieldsHandler) GetFormStructure(c *gin.Context) {
-	structure, err := h.fieldConfigRepo.GetFormStructure()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	structure, err := h.fieldConfigRepo.GetFormStructure(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch form structure"})
 		return

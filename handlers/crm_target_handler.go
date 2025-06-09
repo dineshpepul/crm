@@ -28,6 +28,12 @@ func (h *CRMTargetHandler) GetTargets(c *gin.Context) {
 	assignedToStr := c.Query("assigned_to")
 	teamIDStr := c.Query("team_id")
 	activeStr := c.Query("active")
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 
 	filters := make(map[string]interface{})
 
@@ -55,7 +61,7 @@ func (h *CRMTargetHandler) GetTargets(c *gin.Context) {
 		filters["active"] = false
 	}
 
-	targets, err := h.targetRepo.GetTargets(filters)
+	targets, err := h.targetRepo.GetTargets(filters, companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch targets"})
 		return
@@ -185,7 +191,14 @@ func (h *CRMTargetHandler) GetTargetProgress(c *gin.Context) {
 		return
 	}
 
-	progress, err := h.targetRepo.GetTargetProgress(id)
+	companyIdStr := c.Query("companyId")
+	companyId, err1 := strconv.Atoi(companyIdStr)
+	if err1 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+
+	progress, err := h.targetRepo.GetTargetProgress(id, companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch target progress"})
 		return
@@ -196,7 +209,13 @@ func (h *CRMTargetHandler) GetTargetProgress(c *gin.Context) {
 
 // GetAllTargetProgress returns progress for all active targets
 func (h *CRMTargetHandler) GetAllTargetProgress(c *gin.Context) {
-	progress, err := h.targetRepo.GetAllTargetProgress()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	progress, err := h.targetRepo.GetAllTargetProgress(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch target progress"})
 		return

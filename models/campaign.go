@@ -1,4 +1,3 @@
-
 package models
 
 import (
@@ -19,6 +18,7 @@ type Campaign struct {
 	CreatedBy    int        `json:"created_by" gorm:"not null"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
+	CompanyId    int        `json:"company_id" gorm:"not null"`
 }
 
 // CampaignLead represents the relationship between campaigns and leads
@@ -41,4 +41,5 @@ type CampaignTemplate struct {
 	CreatedBy    int       `json:"created_by" gorm:"not null"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+	CompanyId    int       `json:"company_id" gorm:"not null"`
 }

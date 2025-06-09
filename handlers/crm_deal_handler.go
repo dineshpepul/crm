@@ -32,6 +32,12 @@ func (h *CRMDealHandler) GetDeals(c *gin.Context) {
 	assignedToStr := c.Query("assigned_to")
 	minAmountStr := c.Query("amount")
 	maxAmountStr := c.Query("amount")
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
 
 	filters := make(map[string]interface{})
 
@@ -60,7 +66,7 @@ func (h *CRMDealHandler) GetDeals(c *gin.Context) {
 		}
 	}
 
-	deals, err := h.dealRepo.List(offset, limit, filters)
+	deals, err := h.dealRepo.List(offset, limit, filters, companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch deals"})
 		return
@@ -215,7 +221,13 @@ func (h *CRMDealHandler) GetDealsByLead(c *gin.Context) {
 
 // GetDealPipeline returns deal pipeline analytics
 func (h *CRMDealHandler) GetDealPipeline(c *gin.Context) {
-	pipeline, err := h.dealRepo.GetDealPipeline()
+	companyIdStr := c.Query("companyId")
+	companyId, err := strconv.Atoi(companyIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
+		return
+	}
+	pipeline, err := h.dealRepo.GetDealPipeline(companyId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch deal pipeline"})
 		return

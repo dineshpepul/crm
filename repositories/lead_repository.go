@@ -54,7 +54,7 @@ func (r *gormLeadRepository) FindByID(id int) (*models.Lead, error) {
 }
 
 // List returns all leads
-func (r *gormLeadRepository) List() ([]models.Lead, error) {
+func (r *gormLeadRepository) List(companyId int) ([]models.Lead, error) {
 	var leads []models.Lead
 	if err := r.db.Find(&leads).Error; err != nil {
 		return nil, err
@@ -190,8 +190,9 @@ func (r *gormLeadRepository) Create(lead *models.Lead) error {
 	if len(lead.Tags) > 0 {
 		for _, tag := range lead.Tags {
 			leadTag := models.LeadTag{
-				LeadID: lead.ID,
-				Tag:    tag,
+				LeadID:    lead.ID,
+				Tag:       tag,
+				CompanyId: lead.CompanyId,
 			}
 			if err := tx.Create(&leadTag).Error; err != nil {
 				tx.Rollback()

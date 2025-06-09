@@ -22,4 +22,5 @@ type Deal struct {
 	UpdatedAt         time.Time      `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	Tags              []string       `json:"tags,omitempty" gorm:"-"`
+	CompanyId         int            `json:"company_id" gorm:"not null"`
 }

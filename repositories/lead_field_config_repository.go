@@ -17,27 +17,27 @@ import (
 // }
 
 // GetAllFieldConfigs retrieves all field configurations
-func (r *GormLeadFieldConfigRepository) GetAllFieldConfigs() ([]models.LeadFieldConfig, error) {
+func (r *GormLeadFieldConfigRepository) GetAllFieldConfigs(companyId int) ([]models.LeadFieldConfig, error) {
 	var configs []models.LeadFieldConfig
-	if err := r.db.Find(&configs).Error; err != nil {
+	if err := r.db.Where("company_id=?", companyId).Find(&configs).Error; err != nil {
 		return nil, err
 	}
 	return configs, nil
 }
 
 // GetVisibleFieldConfigs retrieves visible field configurations
-func (r *GormLeadFieldConfigRepository) GetVisibleFieldConfigs() ([]models.LeadFieldConfig, error) {
+func (r *GormLeadFieldConfigRepository) GetVisibleFieldConfigs(companyId int) ([]models.LeadFieldConfig, error) {
 	var configs []models.LeadFieldConfig
-	if err := r.db.Where("visible = ?", true).Find(&configs).Error; err != nil {
+	if err := r.db.Where("visible = ? AND company_id= ?", true, companyId).Find(&configs).Error; err != nil {
 		return nil, err
 	}
 	return configs, nil
 }
 
 // GetRequiredFieldConfigs retrieves required field configurations
-func (r *GormLeadFieldConfigRepository) GetRequiredFieldConfigs() ([]models.LeadFieldConfig, error) {
+func (r *GormLeadFieldConfigRepository) GetRequiredFieldConfigs(companyId int) ([]models.LeadFieldConfig, error) {
 	var configs []models.LeadFieldConfig
-	if err := r.db.Where("required = ?", true).Find(&configs).Error; err != nil {
+	if err := r.db.Where("required = ? AND company_id= ?", true, companyId).Find(&configs).Error; err != nil {
 		return nil, err
 	}
 	return configs, nil
@@ -97,18 +97,18 @@ func (r *GormLeadFieldConfigRepository) ReorderFormFields(fieldIDs []uint) error
 }
 
 // GetAllFormSections retrieves all form sections
-func (r *GormLeadFieldConfigRepository) GetAllFormSections() ([]models.LeadFormSection, error) {
+func (r *GormLeadFieldConfigRepository) GetAllFormSections(companyId int) ([]models.LeadFormSection, error) {
 	var sections []models.LeadFormSection
-	if err := r.db.Find(&sections).Error; err != nil {
+	if err := r.db.Where("company_id = ?", companyId).Find(&sections).Error; err != nil {
 		return nil, err
 	}
 	return sections, nil
 }
 
 // GetVisibleFormSections retrieves visible form sections
-func (r *GormLeadFieldConfigRepository) GetVisibleFormSections() ([]models.LeadFormSection, error) {
+func (r *GormLeadFieldConfigRepository) GetVisibleFormSections(companyId int) ([]models.LeadFormSection, error) {
 	var sections []models.LeadFormSection
-	if err := r.db.Where("visible = ?", true).Find(&sections).Error; err != nil {
+	if err := r.db.Where("visible = ? AND company_id = ?", true, companyId).Find(&sections).Error; err != nil {
 		return nil, err
 	}
 	return sections, nil
@@ -179,15 +179,15 @@ func (r *GormScoreRepository) ScoreUpdateRepo(config []models.ScoreType) error {
 // 	return result, nil
 // }
 
-func (r *GormLeadFieldConfigRepository) GetFormStructure() (map[string]interface{}, error) {
+func (r *GormLeadFieldConfigRepository) GetFormStructure(companyId int) (map[string]interface{}, error) {
 	// Get all sections
-	sections, err := r.GetVisibleFormSections()
+	sections, err := r.GetVisibleFormSections(companyId)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get all fields
-	fields, err := r.GetVisibleFieldConfigs()
+	fields, err := r.GetVisibleFieldConfigs(companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -230,4 +230,13 @@ func (r *GormLeadFieldConfigRepository) GetFormStructure() (map[string]interface
 
 	result["sections"] = sectionsList
 	return result, nil
+}
+
+func (r *GormScoreRepository) ScoreUpdateRepo(config []models.ScoreType) error {
+	for _, config := range config {
+		if err := r.DB.Save(&config).Error; err != nil {
+			return err // or collect all errors if you want to return multiple
+		}
+	}
+	return nil
 }
