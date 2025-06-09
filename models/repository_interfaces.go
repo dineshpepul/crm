@@ -40,10 +40,6 @@ type ScoreRepository interface {
 	ScoreUpdateRepo(config []ScoreType) error
 }
 
-type ScoreRepository interface {
-	ScoreUpdateRepo(config []ScoreType) error
-}
-
 // ContactRepository interface for contact operations
 type ContactRepository interface {
 	FindByID(id int) (*Contact, error)
