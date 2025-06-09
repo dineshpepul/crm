@@ -146,6 +146,15 @@ func (r *GormLeadFieldConfigRepository) ReorderFormSections(sectionIDs []int) er
 	return tx.Commit().Error
 }
 
+func (r *GormScoreRepository) ScoreUpdateRepo(config []models.ScoreType) error {
+	for _, config := range config {
+		if err := r.DB.Save(&config).Error; err != nil {
+			return err // or collect all errors if you want to return multiple
+		}
+	}
+	return nil
+}
+
 // GetFormStructure retrieves the form structure
 // func (r *GormLeadFieldConfigRepository) GetFormStructure() (map[string]interface{}, error) {
 // 	sections, err := r.GetVisibleFormSections()

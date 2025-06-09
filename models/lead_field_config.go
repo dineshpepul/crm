@@ -49,3 +49,10 @@ type LeadCustomField struct {
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
+
+// type LeadScoreType struct {
+// 	ID       int    `json:"id" gorm:"primaryKey"`
+// 	Type     string `json:"type" gorm:"null"`
+// 	MinScore int    `json:"type" gorm:"null"`
+// 	MaxScore int    `json:"type" gorm:"null"`
+// }
