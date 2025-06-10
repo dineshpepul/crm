@@ -205,6 +205,7 @@ func (r *gormLeadRepository) Create(lead *models.Lead) error {
 	if len(lead.CustomFields) > 0 {
 		for i := range lead.CustomFields {
 			lead.CustomFields[i].LeadID = lead.ID
+			lead.CustomFields[i].CompanyId = lead.CompanyId
 			if err := tx.Create(&lead.CustomFields[i]).Error; err != nil {
 				tx.Rollback()
 				return err

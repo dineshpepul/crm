@@ -48,6 +48,7 @@ type LeadCustomField struct {
 	FieldValue string    `json:"field_value" gorm:"type:text"` // Added field to match usage in code
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+	CompanyId  int       `json:"company_id"`
 }
 
 // type LeadScoreType struct {
