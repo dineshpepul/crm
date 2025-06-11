@@ -71,7 +71,7 @@ func (r *GormLeadFieldConfigRepository) CreateFieldConfig(config *models.LeadFie
 
 // UpdateFieldConfig updates a field configuration
 func (r *GormLeadFieldConfigRepository) UpdateFieldConfig(config *models.LeadFieldConfig) error {
-	return r.db.Save(config).Error
+	return r.db.Omit("CreatedAt").Save(config).Error
 }
 
 // DeleteFieldConfig deletes a field configuration
