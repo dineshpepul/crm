@@ -36,6 +36,7 @@ type LeadFormSection struct {
 	Expanded    bool      `json:"expanded" gorm:"default:true"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+	CompanyId   int       `json:"company_id"`
 }
 
 // LeadCustomField stores custom field values for leads
