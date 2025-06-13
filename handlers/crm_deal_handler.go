@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -153,7 +154,7 @@ func (h *CRMDealHandler) UpdateDeal(c *gin.Context) {
 
 	// Ensure ID matches the URL parameter
 	deal.ID = id
-
+	fmt.Println("")
 	// Verify that the lead exists
 	lead, err := h.leadRepo.FindByID(deal.LeadID)
 	if err != nil {
