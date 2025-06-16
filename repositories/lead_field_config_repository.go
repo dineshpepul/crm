@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"crm-app/backend/models"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -126,6 +127,15 @@ func (r *GormLeadFieldConfigRepository) UpdateFormSection(section *models.LeadFo
 
 // DeleteFormSection deletes a form section
 func (r *GormLeadFieldConfigRepository) DeleteFormSection(id int) error {
+	var LeadFormSection models.LeadFormSection
+	if err := r.db.Model(&LeadFormSection).Select("name,company_id").Where("id = ?", id).First(&LeadFormSection).Error; err != nil {
+		return nil
+	}
+	fmt.Println("LeadFormSection", LeadFormSection)
+	if error := r.db.Where("company_id = ? AND section = ?", LeadFormSection.CompanyId, LeadFormSection.Name).Delete(&models.LeadFieldConfig{}).Error; error != nil {
+		return nil
+	}
+
 	return r.db.Delete(&models.LeadFormSection{}, id).Error
 }
 

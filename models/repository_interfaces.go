@@ -91,11 +91,12 @@ type DashboardRepository interface {
 
 // AnalyticsRepository interface for analytics operations
 type AnalyticsRepository interface {
-	GetLeadAnalytics(startDate time.Time, endDate time.Time) (map[string]interface{}, error)
-	GetDealAnalytics(startDate time.Time, endDate time.Time) (map[string]interface{}, error)
-	GetSalesActivity(startDate time.Time, endDate time.Time) (map[string]interface{}, error)
-	GetPerformanceByUser(startDate time.Time, endDate time.Time) (map[string]interface{}, error)
-	GetFunnelAnalytics() (map[string]interface{}, error)
+	GetLeadAnalytics(startDate time.Time, endDate time.Time, companyId int) (map[string]interface{}, error)
+	GetDealAnalytics(startDate time.Time, endDate time.Time, companyId int) (map[string]interface{}, error)
+	GetSalesActivity(startDate time.Time, endDate time.Time, companyId int) (map[string]interface{}, error)
+	GetPerformanceByUser(startDate time.Time, endDate time.Time, companyId int) (map[string]interface{}, error)
+	GetFunnelAnalytics(companyId int) (map[string]interface{}, error)
+	GetTargetAnalytics(startDate time.Time, endDate time.Time, userId *uint, companyId int) (map[string]interface{}, error)
 }
 
 // TargetRepository interface for sales target operations
