@@ -56,11 +56,12 @@ func main() {
 		DealRepo:            repos.DealRepo,
 		CampaignRepo:        repos.CampaignRepo,
 		DashboardRepo:       repos.DashboardRepo,
-		AnalyticsRepo:       repos.AnalyticsRepo,
-		TargetRepo:          repos.TargetRepo,
-		NurtureRepo:         repos.NurtureRepo,
-		UserRepo:            repos.UserRepo,
-		LeadScoreType:       repos.ScoreRepo,
+		// AnalyticsRepo:       repos.AnalyticsRepo,
+		AnalyticsRepo: repositories.NewAnalyticsRepository(database),
+		TargetRepo:    repos.TargetRepo,
+		NurtureRepo:   repos.NurtureRepo,
+		UserRepo:      repos.UserRepo,
+		LeadScoreType: repos.ScoreRepo,
 	}
 	routes.SetupCRMRoutes(r, crmRepos)
 
