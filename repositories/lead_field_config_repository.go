@@ -3,6 +3,7 @@ package repositories
 import (
 	"crm-app/backend/models"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -103,6 +104,7 @@ func (r *GormLeadFieldConfigRepository) GetAllFormSections(companyId int) ([]mod
 	if err := r.db.Where("company_id = ?", companyId).Find(&sections).Error; err != nil {
 		return nil, err
 	}
+
 	return sections, nil
 }
 
@@ -112,7 +114,107 @@ func (r *GormLeadFieldConfigRepository) GetVisibleFormSections(companyId int) ([
 	if err := r.db.Where("visible = ? AND company_id = ?", true, companyId).Find(&sections).Error; err != nil {
 		return nil, err
 	}
+	// If no sections found, call insert function
+	if len(sections) == 0 {
+		fmt.Println("No sections found, inserting default sections...")
+		if err := r.db.Where("company_id = ?", companyId).Find(&sections).Error; err != nil {
+			return nil, err
+		}
+		if len(sections) == 0 {
+			err := r.InsertDefaultFormSections(companyId)
+			if err != nil {
+				return nil, err
+			}
+		}
+		// Optionally re-fetch the inserted sections
+		if err := r.db.Where("visible = ? AND company_id = ?", true, companyId).Find(&sections).Error; err != nil {
+			return nil, err
+		}
+	}
+
 	return sections, nil
+}
+
+func (r *GormLeadFieldConfigRepository) InsertDefaultFormSections(companyId int) error {
+	defaultStages := []struct {
+		Label     string
+		Title     string
+		FormField []models.LeadFieldConfig
+	}{
+		{
+			Label: "Lead Information",
+			Title: "lead_information",
+			FormField: []models.LeadFieldConfig{
+				{DisplayName: "Name", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your name"},
+				{DisplayName: "Title", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter lead title"},
+				{DisplayName: "Lead Source", FieldType: "select", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead source"},
+				{DisplayName: "Lead Status", FieldType: "select", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead status"},
+				{DisplayName: "Industry", FieldType: "select", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead industry"},
+				{DisplayName: "Company", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter company name"},
+				{DisplayName: "No. of employee", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter no. of employee"},
+				{DisplayName: "Email", FieldType: "email", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter email"},
+				{DisplayName: "Mobile no 1", FieldType: "phone", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your mobile no"},
+				{DisplayName: "Mobile no 2", FieldType: "phone", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your mobile no"},
+				{DisplayName: "Gender", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter gender"},
+				{DisplayName: "Pan Card", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter pan number"},
+			},
+		},
+		{
+			Label: "Address Information",
+			Title: "address_information",
+			FormField: []models.LeadFieldConfig{
+				{DisplayName: "Street", FieldType: "text", Placeholder: "Enter your street", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 1},
+				{DisplayName: "City", FieldType: "text", Placeholder: "Enter your city", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 2},
+				{DisplayName: "State", FieldType: "text", Placeholder: "Enter your state", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 3},
+				{DisplayName: "Zip Code", FieldType: "text", Placeholder: "Enter your zip code", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 4},
+				{DisplayName: "Country", FieldType: "text", Placeholder: "Enter your country", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 5},
+				{DisplayName: "Website Url", FieldType: "text", Placeholder: "Enter your webiste url", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 6},
+			},
+		},
+		{
+			Label: "Description Information",
+			Title: "description_information",
+			FormField: []models.LeadFieldConfig{
+				{DisplayName: "Description Information", FieldType: "text", Placeholder: "Enter your description", Options: `[""]`, Required: true, Visible: true, Section: "description_information", OrderIndex: 1},
+			},
+		},
+	}
+
+	now := time.Now()
+	for i, stage := range defaultStages {
+		stageData := models.LeadFormSection{
+			CompanyId:  companyId,
+			Name:       stage.Title,
+			Label:      stage.Label,
+			OrderIndex: i + 1,
+			CreatedAt:  now,
+			UpdatedAt:  now,
+		}
+		if err := r.db.Create(&stageData).Error; err != nil {
+			return err
+		}
+
+		for _, field := range stage.FormField {
+			fieldData := models.LeadFieldConfig{
+				CompanyId:   companyId,
+				DisplayName: field.DisplayName,
+				FieldType:   field.FieldType,
+				Options:     field.Options,
+				Required:    field.Required,
+				Visible:     field.Visible,
+				Section:     stage.Title,
+				OrderIndex:  field.OrderIndex,
+				Placeholder: field.Placeholder,
+				CreatedAt:   now,
+				UpdatedAt:   now,
+			}
+
+			if err := r.db.Create(&fieldData).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // CreateFormSection creates a new form section

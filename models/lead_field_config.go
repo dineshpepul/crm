@@ -7,7 +7,7 @@ import (
 // LeadFieldConfig defines customizable form fields for leads
 type LeadFieldConfig struct {
 	ID            uint      `json:"id" gorm:"primaryKey"`
-	FieldName     string    `json:"field_name" gorm:"size:50;uniqueIndex;not null"`
+	FieldName     string    `json:"field_name" gorm:"size:50;not null"`
 	DisplayName   string    `json:"display_name" gorm:"size:100;not null"`
 	FieldType     string    `json:"field_type" gorm:"size:20;not null"` // text, textarea, select, checkbox, etc.
 	DefaultValue  string    `json:"default_value" gorm:"size:255"`
