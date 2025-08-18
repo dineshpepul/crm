@@ -82,6 +82,9 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.NurtureStep{},
 		&models.NurtureEnrollment{},
 		&models.NurtureActivity{},
+		&models.CrmFieldData{},
+		&models.LeadInput{},
+		&models.LeadData{},
 	)
 }
 

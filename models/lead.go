@@ -36,3 +36,25 @@ type LeadTag struct {
 	CreatedAt time.Time `json:"created_at"`
 	CompanyId int       `json:"company_id" gorm:"not null"`
 }
+
+type LeadData struct {
+	StageId    int    `json:"stageId"`
+	FieldId    int    `json:"fieldId"`
+	FieldValue string `json:"fieldValue"`
+}
+
+type LeadInput struct {
+	CompanyId int        `json:"company_id"`
+	Datas     []LeadData `json:"datas"`
+}
+
+type CrmFieldData struct {
+	CompanyId  int       `json:"companyId" gorm:"column:company_id"`
+	CrmStageId int       `json:"stageId" gorm:"column:crm_stage_id"`
+	CrmFieldId int       `json:"fieldId" gorm:"column:crm_field_id"`
+	FieldValue string    `json:"fieldValue" gorm:"column:field_value"`
+	SubmitId   int       `json:"submitId" gorm:"column:submit_id"`
+	CreatedBy  int       `json:"createdBy" gorm:"column:created_by"`
+	CreatedAt  time.Time `json:"createdAt" gorm:"column:created_at"`
+	UpdatedAt  time.Time `json:"updatedAt" gorm:"column:updated_at"`
+}

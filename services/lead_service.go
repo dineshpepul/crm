@@ -28,17 +28,17 @@ func (s *LeadService) GetLeadByID(id int) (*models.Lead, error) {
 }
 
 // CreateLead creates a new lead with validation
-func (s *LeadService) CreateLead(lead *models.Lead) error {
+func (s *LeadService) CreateLead(lead []models.CrmFieldData) error {
 	// Get required fields for validation
-	requiredFields, err := s.getRequiredFieldNames(lead.CompanyId)
-	if err != nil {
-		return err
-	}
+	// requiredFields, err := s.getRequiredFieldNames(lead.CompanyId)
+	// if err != nil {
+	// 	return err
+	// }
 
-	// Validate required fields
-	if err := s.repos.LeadRepo.ValidateLeadFields(lead, requiredFields); err != nil {
-		return err
-	}
+	// // Validate required fields
+	// if err := s.repos.LeadRepo.ValidateLeadFields(lead, requiredFields); err != nil {
+	// 	return err
+	// }
 
 	return s.repos.LeadRepo.Create(lead)
 }
