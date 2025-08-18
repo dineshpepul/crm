@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"crm-app/backend/models"
 	"crm-app/backend/services"
@@ -13,6 +14,7 @@ import (
 // LeadHandler handles lead-related requests
 type LeadHandler struct {
 	leadService *services.LeadService
+	leadRepo    models.LeadRepository
 }
 
 // NewLeadHandler creates a new LeadHandler
@@ -62,49 +64,54 @@ func (h *LeadHandler) GetLead(c *gin.Context) {
 
 // CreateLead creates a new lead
 func (h *LeadHandler) CreateLead(c *gin.Context) {
-	var lead struct {
-		Name         string                 `json:"name"`
-		Email        string                 `json:"email"`
-		Phone        string                 `json:"phone"`
-		Company      string                 `json:"company"`
-		Source       string                 `json:"source"`
-		Status       string                 `json:"status"`
-		Notes        string                 `json:"notes"`
-		Tags         []string               `json:"tags"`
-		CustomFields map[string]interface{} `json:"custom_fields"`
-	}
-
-	if err := c.ShouldBindJSON(&lead); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+	var bulkInput []models.LeadInput
+	if err := c.ShouldBindJSON(&bulkInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Convert to model object
-	newLead := models.Lead{
-		Name:    lead.Name,
-		Email:   lead.Email,
-		Phone:   lead.Phone,
-		Company: lead.Company,
-		Source:  lead.Source,
-		Status:  lead.Status,
-		Notes:   lead.Notes,
-		Tags:    lead.Tags,
-	}
-
-	// Process custom fields
-	for field, value := range lead.CustomFields {
-		newLead.CustomFields = append(newLead.CustomFields, models.LeadCustomField{
-			FieldName:  field,
-			FieldValue: toString(value),
-		})
-	}
-
-	if err := h.leadService.CreateLead(&newLead); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create lead: " + err.Error()})
+	if len(bulkInput) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No leads provided for import"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, newLead)
+	userId, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "userId not found in context"})
+		return
+	}
+	userIdValue := userId.(int)
+
+	var allRecords []models.CrmFieldData
+	now := time.Now()
+
+	lastSubmitId, err := h.leadRepo.GetLastSubmitId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+		return
+	}
+	newSubmitId := lastSubmitId + 1
+
+	for _, leadInput := range bulkInput {
+		for _, d := range leadInput.Datas {
+			allRecords = append(allRecords, models.CrmFieldData{
+				CompanyId:  leadInput.CompanyId,
+				CrmStageId: d.StageId,
+				CrmFieldId: d.FieldId,
+				FieldValue: d.FieldValue,
+				CreatedBy:  userIdValue,
+				SubmitId:   newSubmitId,
+				CreatedAt:  now,
+				UpdatedAt:  now,
+			})
+		}
+	}
+	if err := h.leadRepo.Create(allRecords); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create leads: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, allRecords)
 }
 
 // UpdateLead updates an existing lead

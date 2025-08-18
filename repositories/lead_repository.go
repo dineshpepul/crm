@@ -168,53 +168,49 @@ func (r *gormLeadRepository) ListByAssignee(assigneeID int) ([]models.Lead, erro
 }
 
 // Create creates a new lead
-func (r *gormLeadRepository) Create(lead *models.Lead) error {
+func (r *gormLeadRepository) Create(lead []models.CrmFieldData) error {
+	return r.db.Create(&lead).Error
 	// Start a transaction
-	tx := r.db.Begin()
-	if tx.Error != nil {
-		return tx.Error
-	}
-
-	// Ensure default status
-	if lead.Status == "" {
-		lead.Status = "new"
-	}
+	// tx := r.db.Begin()
+	// if tx.Error != nil {
+	// 	return tx.Error
+	// }
 
 	// Create the lead
-	if err := tx.Create(lead).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
+	// if err := tx.Create(lead).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
 
 	// Save tags if provided
-	if len(lead.Tags) > 0 {
-		for _, tag := range lead.Tags {
-			leadTag := models.LeadTag{
-				LeadID:    lead.ID,
-				Tag:       tag,
-				CompanyId: lead.CompanyId,
-			}
-			if err := tx.Create(&leadTag).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	}
+	// if len(lead.Tags) > 0 {
+	// 	for _, tag := range lead.Tags {
+	// 		leadTag := models.LeadTag{
+	// 			LeadID:    lead.ID,
+	// 			Tag:       tag,
+	// 			CompanyId: lead.CompanyId,
+	// 		}
+	// 		if err := tx.Create(&leadTag).Error; err != nil {
+	// 			tx.Rollback()
+	// 			return err
+	// 		}
+	// 	}
+	// }
 
 	// Save custom fields if provided
-	if len(lead.CustomFields) > 0 {
-		for i := range lead.CustomFields {
-			lead.CustomFields[i].LeadID = lead.ID
-			lead.CustomFields[i].CompanyId = lead.CompanyId
-			if err := tx.Create(&lead.CustomFields[i]).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	}
+	// if len(lead.CustomFields) > 0 {
+	// 	for i := range lead.CustomFields {
+	// 		lead.CustomFields[i].LeadID = lead.ID
+	// 		lead.CustomFields[i].CompanyId = lead.CompanyId
+	// 		if err := tx.Create(&lead.CustomFields[i]).Error; err != nil {
+	// 			tx.Rollback()
+	// 			return err
+	// 		}
+	// 	}
+	// }
 
 	// Commit the transaction
-	return tx.Commit().Error
+	// return tx.Commit().Error
 }
 
 // Update updates a lead
@@ -280,7 +276,8 @@ func (r *gormLeadRepository) Delete(id int) error {
 // ValidateLeadFields validates that all required fields are present in the lead
 func (r *gormLeadRepository) ValidateLeadFields(lead *models.Lead, requiredFields []string) error {
 	missingFields := []string{}
-
+	fmt.Println("missingFields 1", missingFields)
+	fmt.Println("requiredFields 1", requiredFields)
 	for _, field := range requiredFields {
 		switch field {
 		case "name":
@@ -321,10 +318,18 @@ func (r *gormLeadRepository) ValidateLeadFields(lead *models.Lead, requiredField
 			}
 		}
 	}
-
+	fmt.Println("missingFields 2", missingFields)
 	if len(missingFields) > 0 {
 		return fmt.Errorf("required fields missing: %s", strings.Join(missingFields, ", "))
 	}
 
 	return nil
+}
+
+func (r *gormLeadRepository) GetLastSubmitId() (int, error) {
+	var lastId int
+	err := r.db.Table("crm_field_data").
+		Select("COALESCE(MAX(submit_id), 0)").
+		Scan(&lastId).Error
+	return lastId, err
 }

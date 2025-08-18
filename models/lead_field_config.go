@@ -15,6 +15,7 @@ type LeadFieldConfig struct {
 	Required      bool      `json:"required" gorm:"default:false"`
 	Visible       bool      `json:"visible" gorm:"default:true"`
 	Section       string    `json:"section" gorm:"size:50;default:'default'"` // Which form section this belongs to
+	SectionId     int       `json:"section_id" gorm:"not null;default:0"`
 	OrderIndex    int       `json:"order_index" gorm:"not null;default:0"`
 	HelpText      string    `json:"help_text" gorm:"size:255"`
 	Placeholder   string    `json:"placeholder" gorm:"size:100"`

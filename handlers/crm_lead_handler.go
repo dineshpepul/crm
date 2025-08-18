@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -111,42 +110,55 @@ func (h *CRMLeadHandler) GetLead(c *gin.Context) {
 
 // CreateLead creates a new lead based on dynamic field configuration
 func (h *CRMLeadHandler) CreateLead(c *gin.Context) {
-	var lead models.Lead
-	if err := c.ShouldBindJSON(&lead); err != nil {
+	var leadInput models.LeadInput
+	if err := c.ShouldBindJSON(&leadInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Get required field configs
-	requiredConfigs, err := h.fieldConfigRepo.GetRequiredFieldConfigs(lead.CompanyId)
+	userId, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "userId not found in context"})
+		return
+	}
+	userIdStr := userId.(string)
+	userIdValue, err := strconv.Atoi(userIdStr)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch field configurations"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid userId"})
 		return
 	}
 
-	// Extract required field names
-	requiredFields := make([]string, len(requiredConfigs))
-	for i, config := range requiredConfigs {
-		requiredFields[i] = config.FieldName
-	}
-
-	// Validate required fields
-	if err := h.leadRepo.ValidateLeadFields(&lead, requiredFields); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	lastSubmitId, err := h.leadRepo.GetLastSubmitId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
 		return
 	}
+	newSubmitId := lastSubmitId + 1
 
-	// Set default status if not provided
-	if lead.Status == "" {
-		lead.Status = "new"
+	var records []models.CrmFieldData
+	now := time.Now()
+	for _, d := range leadInput.Datas {
+		records = append(records, models.CrmFieldData{
+			CompanyId:  leadInput.CompanyId,
+			CrmStageId: d.StageId,
+			CrmFieldId: d.FieldId,
+			FieldValue: d.FieldValue,
+			CreatedBy:  userIdValue,
+			SubmitId:   newSubmitId,
+			CreatedAt:  now,
+			UpdatedAt:  now,
+		})
 	}
 
-	if err := h.leadRepo.Create(&lead); err != nil {
+	if err := h.leadRepo.Create(records); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create lead: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, lead)
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Records inserted successfully",
+		"count":   len(records),
+	})
 }
 
 // UpdateLead updates a lead
@@ -374,70 +386,56 @@ func (h *CRMLeadHandler) AssignLead(c *gin.Context) {
 
 // BulkImportLeads imports multiple leads from a JSON array
 func (h *CRMLeadHandler) BulkImportLeads(c *gin.Context) {
-	var leads []models.Lead
-	if err := c.ShouldBindJSON(&leads); err != nil {
+	var bulkInput []models.LeadInput
+	if err := c.ShouldBindJSON(&bulkInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if len(leads) == 0 {
+	if len(bulkInput) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No leads provided for import"})
 		return
 	}
 
-	// Get required field configs
-	requiredConfigs, err := h.fieldConfigRepo.GetRequiredFieldConfigs(leads[0].CompanyId)
+	userId, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "userId not found in context"})
+		return
+	}
+	userIdValue := userId.(int)
 
+	var allRecords []models.CrmFieldData
+	now := time.Now()
+
+	lastSubmitId, err := h.leadRepo.GetLastSubmitId()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch field configurations"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+		return
+	}
+	newSubmitId := lastSubmitId + 1
+
+	for _, leadInput := range bulkInput {
+		for _, d := range leadInput.Datas {
+			allRecords = append(allRecords, models.CrmFieldData{
+				CompanyId:  leadInput.CompanyId,
+				CrmStageId: d.StageId,
+				CrmFieldId: d.FieldId,
+				FieldValue: d.FieldValue,
+				CreatedBy:  userIdValue,
+				SubmitId:   newSubmitId,
+				CreatedAt:  now,
+				UpdatedAt:  now,
+			})
+		}
+	}
+	if err := h.leadRepo.Create(allRecords); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create leads: " + err.Error()})
 		return
 	}
 
-	// Extract required field names
-	requiredFields := make([]string, len(requiredConfigs))
-	for i, config := range requiredConfigs {
-		requiredFields[i] = config.FieldName
-	}
-	fmt.Println("requiredConfigs", requiredConfigs)
-	// Process each lead
-	results := make([]map[string]interface{}, 0, len(leads))
-	successCount := 0
-
-	for i, lead := range leads {
-		// Set default status if not provided
-		if lead.Status == "" {
-			lead.Status = "new"
-		}
-
-		// Validate required fields
-		err := h.leadRepo.ValidateLeadFields(&lead, requiredFields)
-
-		result := map[string]interface{}{
-			"index":   i,
-			"success": false,
-		}
-
-		if err != nil {
-			result["error"] = err.Error()
-		} else {
-			// Create the lead
-			if err = h.leadRepo.Create(&lead); err != nil {
-				result["error"] = "Failed to create lead: " + err.Error()
-			} else {
-				result["success"] = true
-				result["lead_id"] = lead.ID
-				successCount++
-			}
-		}
-
-		results = append(results, result)
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"total":         len(leads),
-		"success_count": successCount,
-		"fail_count":    len(leads) - successCount,
-		"results":       results,
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Bulk records inserted successfully",
+		"count":   len(allRecords),
 	})
 }
 

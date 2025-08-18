@@ -10,10 +10,11 @@ type LeadRepository interface {
 	List(companyId int) ([]Lead, error)
 	ListByStatus(status string) ([]Lead, error)
 	ListByAssignee(assigneeID int) ([]Lead, error)
-	Create(lead *Lead) error
+	Create(lead []CrmFieldData) error
 	Update(lead *Lead) error
 	Delete(id int) error
 	ValidateLeadFields(lead *Lead, requiredFields []string) error
+	GetLastSubmitId() (int, error)
 }
 
 // LeadFieldConfigRepository interface for lead field configuration

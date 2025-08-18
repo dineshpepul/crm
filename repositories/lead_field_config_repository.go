@@ -145,37 +145,37 @@ func (r *GormLeadFieldConfigRepository) InsertDefaultFormSections(companyId int)
 			Label: "Lead Information",
 			Title: "lead_information",
 			FormField: []models.LeadFieldConfig{
-				{DisplayName: "Name", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your name"},
-				{DisplayName: "Title", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter lead title"},
-				{DisplayName: "Lead Source", FieldType: "select", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead source"},
-				{DisplayName: "Lead Status", FieldType: "select", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead status"},
-				{DisplayName: "Industry", FieldType: "select", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead industry"},
-				{DisplayName: "Company", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter company name"},
-				{DisplayName: "No. of employee", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter no. of employee"},
-				{DisplayName: "Email", FieldType: "email", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter email"},
-				{DisplayName: "Mobile no 1", FieldType: "phone", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your mobile no"},
-				{DisplayName: "Mobile no 2", FieldType: "phone", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your mobile no"},
-				{DisplayName: "Gender", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter gender"},
-				{DisplayName: "Pan Card", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter pan number"},
+				{FieldName: "name", DisplayName: "Name", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your name"},
+				{FieldName: "title", DisplayName: "Title", FieldType: "text", Options: `[""]`, Required: true, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter lead title"},
+				{FieldName: "Lead_source", DisplayName: "Lead Source", FieldType: "select", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead source"},
+				{FieldName: "lead_status", DisplayName: "Lead Status", FieldType: "select", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead status"},
+				{FieldName: "industry", DisplayName: "Industry", FieldType: "select", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Choose the lead industry"},
+				{FieldName: "company", DisplayName: "Company", FieldType: "text", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter company name"},
+				{FieldName: "no_of_employee", DisplayName: "No. of employee", FieldType: "text", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter no. of employee"},
+				{FieldName: "email", DisplayName: "Email", FieldType: "email", Options: `[""]`, Required: true, Visible: false, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter email"},
+				{FieldName: "mobile_no_1", DisplayName: "Mobile no 1", FieldType: "phone", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your mobile no"},
+				{FieldName: "mobile_no_2", DisplayName: "Mobile no 2", FieldType: "phone", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter your mobile no"},
+				{FieldName: "gender", DisplayName: "Gender", FieldType: "text", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter gender"},
+				{FieldName: "pan_card", DisplayName: "Pan Card", FieldType: "text", Options: `[""]`, Required: false, Visible: true, Section: "lead_information", OrderIndex: 1, Placeholder: "Enter pan number"},
 			},
 		},
 		{
 			Label: "Address Information",
 			Title: "address_information",
 			FormField: []models.LeadFieldConfig{
-				{DisplayName: "Street", FieldType: "text", Placeholder: "Enter your street", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 1},
-				{DisplayName: "City", FieldType: "text", Placeholder: "Enter your city", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 2},
-				{DisplayName: "State", FieldType: "text", Placeholder: "Enter your state", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 3},
-				{DisplayName: "Zip Code", FieldType: "text", Placeholder: "Enter your zip code", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 4},
-				{DisplayName: "Country", FieldType: "text", Placeholder: "Enter your country", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 5},
-				{DisplayName: "Website Url", FieldType: "text", Placeholder: "Enter your webiste url", Options: `[""]`, Required: true, Visible: true, Section: "address_information", OrderIndex: 6},
+				{FieldName: "street", DisplayName: "Street", FieldType: "text", Placeholder: "Enter your street", Options: `[""]`, Required: false, Visible: true, Section: "address_information", OrderIndex: 1},
+				{FieldName: "city", DisplayName: "City", FieldType: "text", Placeholder: "Enter your city", Options: `[""]`, Required: false, Visible: true, Section: "address_information", OrderIndex: 2},
+				{FieldName: "state", DisplayName: "State", FieldType: "text", Placeholder: "Enter your state", Options: `[""]`, Required: false, Visible: true, Section: "address_information", OrderIndex: 3},
+				{FieldName: "zip_code", DisplayName: "Zip Code", FieldType: "text", Placeholder: "Enter your zip code", Options: `[""]`, Required: false, Visible: true, Section: "address_information", OrderIndex: 4},
+				{FieldName: "country", DisplayName: "Country", FieldType: "text", Placeholder: "Enter your country", Options: `[""]`, Required: false, Visible: true, Section: "address_information", OrderIndex: 5},
+				{FieldName: "website_url", DisplayName: "Website Url", FieldType: "text", Placeholder: "Enter your website url", Options: `[""]`, Required: false, Visible: true, Section: "address_information", OrderIndex: 6},
 			},
 		},
 		{
 			Label: "Description Information",
 			Title: "description_information",
 			FormField: []models.LeadFieldConfig{
-				{DisplayName: "Description Information", FieldType: "text", Placeholder: "Enter your description", Options: `[""]`, Required: true, Visible: true, Section: "description_information", OrderIndex: 1},
+				{FieldName: "description_information", DisplayName: "Description Information", FieldType: "text", Placeholder: "Enter your description", Options: `[""]`, Required: false, Visible: true, Section: "description_information", OrderIndex: 1},
 			},
 		},
 	}
@@ -193,16 +193,18 @@ func (r *GormLeadFieldConfigRepository) InsertDefaultFormSections(companyId int)
 		if err := r.db.Create(&stageData).Error; err != nil {
 			return err
 		}
-
+		fmt.Println("id", stageData.ID)
 		for _, field := range stage.FormField {
 			fieldData := models.LeadFieldConfig{
 				CompanyId:   companyId,
+				FieldName:   field.FieldName,
 				DisplayName: field.DisplayName,
 				FieldType:   field.FieldType,
 				Options:     field.Options,
 				Required:    field.Required,
 				Visible:     field.Visible,
 				Section:     stage.Title,
+				SectionId:   int(stageData.ID),
 				OrderIndex:  field.OrderIndex,
 				Placeholder: field.Placeholder,
 				CreatedAt:   now,
