@@ -333,3 +333,8 @@ func (r *gormLeadRepository) GetLastSubmitId() (int, error) {
 		Scan(&lastId).Error
 	return lastId, err
 }
+
+func (r *gormLeadRepository) CreateMainLead(lead *models.Lead) error {
+	fmt.Println("inline")
+	return r.db.Create(lead).Error
+}
