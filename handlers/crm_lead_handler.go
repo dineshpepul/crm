@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -128,12 +129,27 @@ func (h *CRMLeadHandler) CreateLead(c *gin.Context) {
 		return
 	}
 
-	lastSubmitId, err := h.leadRepo.GetLastSubmitId()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+	lead := models.Lead{
+
+		Status:    "new",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		CompanyId: leadInput.CompanyId,
+	}
+	fmt.Println("hello")
+	if err := h.leadRepo.CreateMainLead(&lead); err != nil {
+		fmt.Println("check")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	newSubmitId := lastSubmitId + 1
+	fmt.Println("verify")
+	// lastSubmitId, err := h.leadRepo.GetLastSubmitId()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+	// 	return
+	// }
+	// newSubmitId := lastSubmitId + 1
+	newSubmitId := lead.ID
 
 	var records []models.CrmFieldData
 	now := time.Now()
@@ -407,12 +423,26 @@ func (h *CRMLeadHandler) BulkImportLeads(c *gin.Context) {
 	var allRecords []models.CrmFieldData
 	now := time.Now()
 
-	lastSubmitId, err := h.leadRepo.GetLastSubmitId()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+	lead := models.Lead{
+		Status:    "new",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		CompanyId: 1,
+	}
+
+	if err := h.leadRepo.CreateMainLead(&lead); err != nil {
+		fmt.Println("check")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	newSubmitId := lastSubmitId + 1
+	newSubmitId := lead.ID
+
+	// lastSubmitId, err := h.leadRepo.GetLastSubmitId()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+	// 	return
+	// }
+	// newSubmitId := lastSubmitId + 1
 
 	for _, leadInput := range bulkInput {
 		for _, d := range leadInput.Datas {

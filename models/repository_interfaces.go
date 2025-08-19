@@ -11,6 +11,7 @@ type LeadRepository interface {
 	ListByStatus(status string) ([]Lead, error)
 	ListByAssignee(assigneeID int) ([]Lead, error)
 	Create(lead []CrmFieldData) error
+	CreateMainLead(lead *Lead) error
 	Update(lead *Lead) error
 	Delete(id int) error
 	ValidateLeadFields(lead *Lead, requiredFields []string) error

@@ -85,12 +85,25 @@ func (h *LeadHandler) CreateLead(c *gin.Context) {
 	var allRecords []models.CrmFieldData
 	now := time.Now()
 
-	lastSubmitId, err := h.leadRepo.GetLastSubmitId()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+	lead := models.Lead{
+		Status:    "new",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		CompanyId: 1,
+	}
+
+	if err := h.leadRepo.CreateMainLead(&lead); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	newSubmitId := lastSubmitId + 1
+	newSubmitId := lead.ID
+
+	// lastSubmitId, err := h.leadRepo.GetLastSubmitId()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get last submit id: " + err.Error()})
+	// 	return
+	// }
+	// newSubmitId := lastSubmitId + 1
 
 	for _, leadInput := range bulkInput {
 		for _, d := range leadInput.Datas {

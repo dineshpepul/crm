@@ -9,7 +9,7 @@ import (
 // Lead represents a lead in the CRM system
 type Lead struct {
 	ID           uint              `json:"id" gorm:"primaryKey"`
-	Name         string            `json:"name" gorm:"size:255;not null"`
+	Name         string            `json:"name" gorm:"size:255;null"`
 	Email        string            `json:"email" gorm:"size:255"`
 	Phone        string            `json:"phone" gorm:"size:50"`
 	Company      string            `json:"company" gorm:"size:255"`
@@ -53,7 +53,7 @@ type CrmFieldData struct {
 	CrmStageId int       `json:"stageId" gorm:"column:crm_stage_id"`
 	CrmFieldId int       `json:"fieldId" gorm:"column:crm_field_id"`
 	FieldValue string    `json:"fieldValue" gorm:"column:field_value"`
-	SubmitId   int       `json:"submitId" gorm:"column:submit_id"`
+	SubmitId   uint      `json:"submitId" gorm:"column:submit_id"`
 	CreatedBy  int       `json:"createdBy" gorm:"column:created_by"`
 	CreatedAt  time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt  time.Time `json:"updatedAt" gorm:"column:updated_at"`
