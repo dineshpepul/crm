@@ -58,3 +58,17 @@ type CrmFieldData struct {
 	CreatedAt  time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt  time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }
+
+type GroupedLead struct {
+	SubmitID uint                `json:"submitId"`
+	Score    string              `json:"score"`
+	Fields   []map[string]string `json:"fields"`
+}
+
+type LeadFieldResult struct {
+	SubmitID   uint   `gorm:"column:submit_id"`
+	LeadID     uint   `gorm:"column:lead_id"`
+	CrmFieldID uint   `gorm:"column:crm_field_id"`
+	FieldName  string `gorm:"column:field_name"`
+	FieldValue string `gorm:"column:field_value"`
+}

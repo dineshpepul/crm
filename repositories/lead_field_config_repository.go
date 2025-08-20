@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"crm-app/backend/models"
+	"errors"
 	"fmt"
 	"time"
 
@@ -261,9 +262,36 @@ func (r *GormLeadFieldConfigRepository) ReorderFormSections(sectionIDs []int) er
 }
 
 func (r *GormScoreRepository) ScoreUpdateRepo(config []models.ScoreType) error {
-	for _, config := range config {
-		if err := r.DB.Save(&config).Error; err != nil {
-			return err // or collect all errors if you want to return multiple
+	// for _, config := range config {
+	// 	if err := r.DB.Save(&config).Error; err != nil {
+	// 		return err // or collect all errors if you want to return multiple
+	// 	}
+	// }
+	// return nil
+	for _, cfg := range config {
+		var existing models.ScoreType
+
+		// Check if score type exists for company_id + type
+		err := r.DB.Where("company_id = ? AND type = ?", cfg.CompanyId, cfg.Type).
+			First(&existing).Error
+
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				// Not found → create new
+				if err := r.DB.Create(&cfg).Error; err != nil {
+					return err
+				}
+			} else {
+				return err // real DB error
+			}
+		} else {
+			// Found → update existing
+			existing.MinScore = cfg.MinScore
+			existing.MaxScore = cfg.MaxScore
+			existing.Type = cfg.Type
+			if err := r.DB.Save(&existing).Error; err != nil {
+				return err
+			}
 		}
 	}
 	return nil

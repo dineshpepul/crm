@@ -61,8 +61,7 @@ func (h *CRMLeadHandler) GetLeads(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})
 		return
 	}
-
-	var leads []models.Lead
+	var leads []models.GroupedLead
 
 	// Apply filters if provided
 	if status != "" {
@@ -74,6 +73,10 @@ func (h *CRMLeadHandler) GetLeads(c *gin.Context) {
 			return
 		}
 		leads, err = h.leadRepo.ListByAssignee(assignedTo)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid assigned_to parameter"})
+			return
+		}
 	} else {
 		leads, err = h.leadRepo.List(companyId)
 	}
@@ -481,7 +484,7 @@ func (h *CRMLeadHandler) ExportLeads(c *gin.Context) {
 		return
 	}
 
-	var leads []models.Lead
+	var leads []models.GroupedLead
 	var err error
 
 	// Apply filters if provided
