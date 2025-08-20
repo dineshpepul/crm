@@ -4,6 +4,7 @@ import (
 	"crm-app/backend/models"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"gorm.io/gorm"
@@ -54,117 +55,240 @@ func (r *gormLeadRepository) FindByID(id int) (*models.Lead, error) {
 }
 
 // List returns all leads
-func (r *gormLeadRepository) List(companyId int) ([]models.Lead, error) {
-	var leads []models.Lead
-	if err := r.db.Find(&leads).Error; err != nil {
+// func (r *gormLeadRepository) List(companyId int) ([]models.Lead, error) {
+// 	var leadss []models.Lead
+
+// 	if err := r.db.Where("company_id = ?", companyId).Find(&leadss).Error; err != nil {
+// 		return nil, err
+// 	}
+
+// 	var scoreTypes []models.ScoreType
+// 	if error := r.db.Where("company_id = ?", companyId).Find(&scoreTypes).Error; error != nil {
+// 		return nil, error
+// 	}
+
+// 	// Load related data for each lead
+// 	for i := range leadss {
+// 		// Load custom fields
+// 		var customFields []models.LeadCustomField
+// 		if err := r.db.Where("lead_id = ?", leadss[i].ID).Find(&customFields).Error; err != nil {
+// 			return nil, err
+// 		}
+// 		leadss[i].CustomFields = customFields
+
+// 		// Load tags
+// 		var leadTags []models.LeadTag
+// 		if err := r.db.Where("lead_id = ?", leadss[i].ID).Find(&leadTags).Error; err != nil {
+// 			return nil, err
+// 		}
+
+// 		// Extract tag values
+// 		tags := make([]string, len(leadTags))
+// 		for j, tag := range leadTags {
+// 			tags[j] = tag.Tag
+// 		}
+// 		leadss[i].Tags = tags
+
+// 		matched := false
+
+// 		if leadss[i].Score != nil {
+// 			for _, st := range scoreTypes {
+// 				if *leadss[i].Score >= st.MinScore && *leadss[i].Score <= st.MaxScore {
+// 					leadss[i].Type = st.Type
+// 					matched = true
+// 					break
+// 				}
+// 			}
+// 		}
+
+// 		if !matched {
+// 			leadss[i].Type = "cold"
+// 		}
+// 	}
+
+// 	return leadss, nil
+// }
+
+// func (r *gormLeadRepository) List(companyId int) ([]models.GroupedLead, error) {
+// 	type LeadFieldResult struct {
+// 		SubmitID   uint   `gorm:"column:submit_id"`
+// 		LeadID     uint   `gorm:"column:lead_id"`
+// 		CrmFieldID uint   `gorm:"column:crm_field_id"`
+// 		FieldName  string `gorm:"column:field_name"`
+// 		FieldValue string `gorm:"column:field_value"`
+// 	}
+// 	var results []LeadFieldResult
+
+// 	err := r.db.Table("leads").
+// 		Select("crm_field_data.submit_id, leads.id as lead_id, crm_field_data.crm_field_id, lead_field_configs.field_name, crm_field_data.field_value").
+// 		Joins("INNER JOIN crm_field_data ON crm_field_data.submit_id = leads.id").
+// 		Joins("INNER JOIN lead_field_configs ON lead_field_configs.id = crm_field_data.crm_field_id").
+// 		Scan(&results).Error
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var scoreTypes []models.ScoreType
+// 	if error := r.db.Where("company_id = ?", companyId).Find(&scoreTypes).Error; error != nil {
+// 		return nil, error
+// 	}
+
+// 	grouped := make(map[uint][]map[string]string)
+
+// 	for _, r := range results {
+// 		field := map[string]string{
+// 			"fieldId":   fmt.Sprintf("%d", r.CrmFieldID),
+// 			"fieldName": r.FieldName,
+// 			"value":     r.FieldValue,
+// 		}
+// 		grouped[r.SubmitID] = append(grouped[r.SubmitID], field)
+// 	}
+
+// 	// Convert map to slice
+// 	var finalResult []models.GroupedLead
+// 	for submitID, fields := range grouped {
+// 		finalResult = append(finalResult, models.GroupedLead{
+// 			SubmitID: submitID,
+// 			Fields:   fields,
+// 		})
+// 	}
+// 	return finalResult, nil
+// }
+
+func (r *gormLeadRepository) List(companyId int) ([]models.GroupedLead, error) {
+
+	var results []models.LeadFieldResult
+
+	// Fetch lead fields
+	err := r.db.Table("leads").
+		Select("crm_field_data.submit_id, leads.id as lead_id, crm_field_data.crm_field_id, lead_field_configs.field_name, crm_field_data.field_value").
+		Joins("INNER JOIN crm_field_data ON crm_field_data.submit_id = leads.id").
+		Joins("INNER JOIN lead_field_configs ON lead_field_configs.id = crm_field_data.crm_field_id").
+		Scan(&results).Error
+	if err != nil {
 		return nil, err
 	}
 
-	// Load related data for each lead
-	for i := range leads {
-		// Load custom fields
-		var customFields []models.LeadCustomField
-		if err := r.db.Where("lead_id = ?", leads[i].ID).Find(&customFields).Error; err != nil {
-			return nil, err
-		}
-		leads[i].CustomFields = customFields
-
-		// Load tags
-		var leadTags []models.LeadTag
-		if err := r.db.Where("lead_id = ?", leads[i].ID).Find(&leadTags).Error; err != nil {
-			return nil, err
-		}
-
-		// Extract tag values
-		tags := make([]string, len(leadTags))
-		for j, tag := range leadTags {
-			tags[j] = tag.Tag
-		}
-		leads[i].Tags = tags
-	}
-
-	return leads, nil
-}
-
-// ListByStatus returns leads with the given status
-func (r *gormLeadRepository) ListByStatus(status string) ([]models.Lead, error) {
-	var leads []models.Lead
-	if err := r.db.Where("status = ?", status).Find(&leads).Error; err != nil {
-		return nil, err
-	}
-
+	// Fetch scoring rules
 	var scoreTypes []models.ScoreType
-	if error := r.db.Find(&scoreTypes).Error; error != nil {
-		return nil, error
+	if err := r.db.Where("company_id = ?", companyId).Find(&scoreTypes).Error; err != nil {
+		return nil, err
 	}
 
-	// Load related data for each lead (custom fields and tags)
-	for i := range leads {
-		var customFields []models.LeadCustomField
-		if err := r.db.Where("lead_id = ?", leads[i].ID).Find(&customFields).Error; err != nil {
-			return nil, err
+	// Group fields by submitId
+	grouped := make(map[uint][]map[string]string)
+	for _, r := range results {
+		field := map[string]string{
+			"fieldId":   fmt.Sprintf("%d", r.CrmFieldID),
+			"fieldName": r.FieldName,
+			"value":     r.FieldValue,
 		}
-		leads[i].CustomFields = customFields
+		grouped[r.SubmitID] = append(grouped[r.SubmitID], field)
+	}
 
-		matched := false
+	// Convert map to slice & apply scoring
+	var finalResult []models.GroupedLead
+	for submitID, fields := range grouped {
+		leadScore := "cold" // default
 
-		if leads[i].Score != nil {
-			for _, st := range scoreTypes {
-				if *leads[i].Score >= st.MinScore && *leads[i].Score <= st.MaxScore {
-					leads[i].Type = st.Type
-					matched = true
-					break
+		// try to find a numeric field for scoring
+		for _, field := range fields {
+			if scoreVal, err := strconv.Atoi(field["value"]); err == nil {
+				for _, st := range scoreTypes {
+					if scoreVal >= st.MinScore && scoreVal <= st.MaxScore {
+						leadScore = st.Type
+						break
+					}
 				}
+				// stop after first valid scoring match
+				break
 			}
 		}
 
-		if !matched {
-			leads[i].Type = "cold"
-		}
-
-		var leadTags []models.LeadTag
-		if err := r.db.Where("lead_id = ?", leads[i].ID).Find(&leadTags).Error; err != nil {
-			return nil, err
-		}
-
-		tags := make([]string, len(leadTags))
-		for j, tag := range leadTags {
-			tags[j] = tag.Tag
-		}
-		leads[i].Tags = tags
+		finalResult = append(finalResult, models.GroupedLead{
+			SubmitID: submitID,
+			Score:    leadScore,
+			Fields:   fields,
+		})
 	}
 
-	return leads, nil
+	return finalResult, nil
 }
 
-// ListByAssignee returns leads assigned to the given user
-func (r *gormLeadRepository) ListByAssignee(assigneeID int) ([]models.Lead, error) {
-	var leads []models.Lead
-	if err := r.db.Where("assigned_to_id = ?", assigneeID).Find(&leads).Error; err != nil {
+// ListByStatus returns leads with the given status
+func (r *gormLeadRepository) ListByStatus(status string) ([]models.GroupedLead, error) {
+	var results []models.LeadFieldResult
+
+	err := r.db.Table("leads").
+		Select("crm_field_data.submit_id, leads.id as lead_id, crm_field_data.crm_field_id, lead_field_configs.field_name, crm_field_data.field_value").
+		Joins("INNER JOIN crm_field_data ON crm_field_data.submit_id = leads.id").
+		Joins("INNER JOIN lead_field_configs ON lead_field_configs.id = crm_field_data.crm_field_id").
+		Where("leads.status = ?", status).
+		Scan(&results).Error
+
+	if err != nil {
 		return nil, err
 	}
 
-	// Load related data for each lead (custom fields and tags)
-	for i := range leads {
-		var customFields []models.LeadCustomField
-		if err := r.db.Where("lead_id = ?", leads[i].ID).Find(&customFields).Error; err != nil {
-			return nil, err
-		}
-		leads[i].CustomFields = customFields
+	grouped := make(map[uint][]map[string]string)
 
-		var leadTags []models.LeadTag
-		if err := r.db.Where("lead_id = ?", leads[i].ID).Find(&leadTags).Error; err != nil {
-			return nil, err
+	for _, r := range results {
+		field := map[string]string{
+			"fieldId":   fmt.Sprintf("%d", r.CrmFieldID),
+			"fieldName": r.FieldName,
+			"value":     r.FieldValue,
 		}
-
-		tags := make([]string, len(leadTags))
-		for j, tag := range leadTags {
-			tags[j] = tag.Tag
-		}
-		leads[i].Tags = tags
+		grouped[r.SubmitID] = append(grouped[r.SubmitID], field)
 	}
 
-	return leads, nil
+	// Convert map to slice
+	var finalResult []models.GroupedLead
+	for submitID, fields := range grouped {
+		finalResult = append(finalResult, models.GroupedLead{
+			SubmitID: submitID,
+			Fields:   fields,
+		})
+	}
+	return finalResult, nil
+}
+
+// ListByAssignee returns leads assigned to the given user
+func (r *gormLeadRepository) ListByAssignee(assigneeID int) ([]models.GroupedLead, error) {
+
+	var results []models.LeadFieldResult
+
+	err := r.db.Table("leads").
+		Select("crm_field_data.submit_id, leads.id as lead_id, crm_field_data.crm_field_id, lead_field_configs.field_name, crm_field_data.field_value").
+		Joins("INNER JOIN crm_field_data ON crm_field_data.submit_id = leads.id").
+		Joins("INNER JOIN lead_field_configs ON lead_field_configs.id = crm_field_data.crm_field_id").
+		Where("leads.assigned_to_id = ?", assigneeID).
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	grouped := make(map[uint][]map[string]string)
+
+	for _, r := range results {
+		field := map[string]string{
+			"fieldId":   fmt.Sprintf("%d", r.CrmFieldID),
+			"fieldName": r.FieldName,
+			"value":     r.FieldValue,
+		}
+		grouped[r.SubmitID] = append(grouped[r.SubmitID], field)
+	}
+
+	// Convert map to slice
+	var finalResult []models.GroupedLead
+	for submitID, fields := range grouped {
+		finalResult = append(finalResult, models.GroupedLead{
+			SubmitID: submitID,
+			Fields:   fields,
+		})
+	}
+	return finalResult, nil
 }
 
 // Create creates a new lead

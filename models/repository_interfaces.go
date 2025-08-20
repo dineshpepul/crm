@@ -7,9 +7,9 @@ import (
 // LeadRepository interface for lead operations
 type LeadRepository interface {
 	FindByID(id int) (*Lead, error)
-	List(companyId int) ([]Lead, error)
-	ListByStatus(status string) ([]Lead, error)
-	ListByAssignee(assigneeID int) ([]Lead, error)
+	List(companyId int) ([]GroupedLead, error)
+	ListByStatus(status string) ([]GroupedLead, error)
+	ListByAssignee(assigneeID int) ([]GroupedLead, error)
 	Create(lead []CrmFieldData) error
 	CreateMainLead(lead *Lead) error
 	Update(lead *Lead) error

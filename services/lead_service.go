@@ -18,7 +18,7 @@ func NewLeadService(repos *models.Repositories) *LeadService {
 }
 
 // GetLeads retrieves leads with optional filters
-func (s *LeadService) GetLeads(companyId int) ([]models.Lead, error) {
+func (s *LeadService) GetLeads(companyId int) ([]models.GroupedLead, error) {
 	return s.repos.LeadRepo.List(companyId)
 }
 
@@ -103,12 +103,12 @@ func (s *LeadService) AssignLead(id int, assigneeID int) error {
 }
 
 // GetLeadsByStatus retrieves leads by status
-func (s *LeadService) GetLeadsByStatus(status string) ([]models.Lead, error) {
+func (s *LeadService) GetLeadsByStatus(status string) ([]models.GroupedLead, error) {
 	return s.repos.LeadRepo.ListByStatus(status)
 }
 
 // GetLeadsByAssignee retrieves leads by assignee
-func (s *LeadService) GetLeadsByAssignee(assigneeID int) ([]models.Lead, error) {
+func (s *LeadService) GetLeadsByAssignee(assigneeID int) ([]models.GroupedLead, error) {
 	return s.repos.LeadRepo.ListByAssignee(assigneeID)
 }
 
@@ -192,7 +192,7 @@ func (s *LeadService) BulkImportLeads(leads []models.Lead) (map[string]interface
 }
 
 // ExportLeads exports leads - stub method to be implemented
-func (s *LeadService) ExportLeads(filters map[string]string, companyId int) ([]models.Lead, error) {
+func (s *LeadService) ExportLeads(filters map[string]string, companyId int) ([]models.GroupedLead, error) {
 	// Implementation would go here
 	return s.repos.LeadRepo.List(companyId)
 }
