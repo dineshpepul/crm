@@ -45,7 +45,7 @@ type LeadData struct {
 
 type LeadInput struct {
 	CompanyId int        `json:"company_id"`
-	Datas     []LeadData `json:"datas"`
+	Datas     []LeadData `json:"data"`
 }
 
 type CrmFieldData struct {

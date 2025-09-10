@@ -153,7 +153,7 @@ func (h *CRMLeadHandler) CreateLead(c *gin.Context) {
 	// }
 	// newSubmitId := lastSubmitId + 1
 	newSubmitId := lead.ID
-
+	fmt.Println("leadInput", leadInput)
 	var records []models.CrmFieldData
 	now := time.Now()
 	for _, d := range leadInput.Datas {
@@ -168,7 +168,7 @@ func (h *CRMLeadHandler) CreateLead(c *gin.Context) {
 			UpdatedAt:  now,
 		})
 	}
-
+	fmt.Println("records", records)
 	if err := h.leadRepo.Create(records); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create lead: " + err.Error()})
 		return
