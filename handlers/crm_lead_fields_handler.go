@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -305,6 +306,7 @@ func (h *CRMLeadFieldsHandler) ReorderFormSections(c *gin.Context) {
 // GetFormStructure returns the complete form structure
 func (h *CRMLeadFieldsHandler) GetFormStructure(c *gin.Context) {
 	companyIdStr := c.Query("companyId")
+	fmt.Println("companyIdStr", companyIdStr)
 	companyId, err := strconv.Atoi(companyIdStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})

@@ -56,6 +56,7 @@ func (h *CRMLeadHandler) GetLeads(c *gin.Context) {
 	status := c.Query("status")
 	assignedToStr := c.Query("assigned_to")
 	companyIdStr := c.Query("companyId")
+	fmt.Println("companyIdStr", companyIdStr)
 	companyId, err := strconv.Atoi(companyIdStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid companyId"})

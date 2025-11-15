@@ -180,6 +180,24 @@ func (r *GormLeadFieldConfigRepository) InsertDefaultFormSections(companyId int)
 			},
 		},
 	}
+	var scoreTypes []models.ScoreType
+	if err := r.db.Where("company_id = ?", companyId).Find(&scoreTypes).Error; err != nil {
+		return nil
+	}
+
+	if len(scoreTypes) == 0 {
+		defaultTypes := []models.ScoreType{
+			{Type: "cold", MinScore: 0, MaxScore: 30, CompanyId: companyId},
+			{Type: "warm", MinScore: 31, MaxScore: 60, CompanyId: companyId},
+			{Type: "hot", MinScore: 61, MaxScore: 100, CompanyId: companyId},
+		}
+
+		if err := r.db.Create(&defaultTypes).Error; err != nil {
+			return nil
+		}
+
+		scoreTypes = defaultTypes
+	}
 
 	now := time.Now()
 	for i, stage := range defaultStages {
