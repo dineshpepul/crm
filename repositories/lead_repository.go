@@ -176,6 +176,20 @@ func (r *gormLeadRepository) List(companyId int) ([]models.GroupedLead, error) {
 		return nil, err
 	}
 
+	if len(scoreTypes) == 0 {
+		defaultTypes := []models.ScoreType{
+			{Type: "cold", MinScore: 0, MaxScore: 30, CompanyId: companyId},
+			{Type: "warm", MinScore: 31, MaxScore: 60, CompanyId: companyId},
+			{Type: "hot", MinScore: 61, MaxScore: 100, CompanyId: companyId},
+		}
+
+		if err := r.db.Create(&defaultTypes).Error; err != nil {
+			return nil, err
+		}
+
+		scoreTypes = defaultTypes
+	}
+
 	// Group fields by submitId
 	grouped := make(map[uint][]map[string]string)
 	for _, r := range results {
