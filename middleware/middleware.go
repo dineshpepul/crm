@@ -139,11 +139,10 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 
 		// 5. Extract claims safely
-		userID, _ := tok.Get("user_id")
-		deviceID, _ := tok.Get("device_id")
+		userId, _ := tok.Get("user_id")
 
-		c.Set("user_id", userID)
-		c.Set("device_id", deviceID)
+		c.Set("userId", userId)
+		fmt.Println("userId token", userId)
 
 		c.Next()
 	}
