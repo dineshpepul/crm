@@ -10,6 +10,7 @@ type LeadFieldConfig struct {
 	FieldName     string    `json:"field_name" gorm:"size:50;not null"`
 	DisplayName   string    `json:"display_name" gorm:"size:100;not null"`
 	FieldType     string    `json:"field_type" gorm:"size:20;not null"` // text, textarea, select, checkbox, etc.
+	CanAlter      uint8     `json:"can_alter" gorm:"type:TINYINT(1);not null;default:1"`
 	DefaultValue  string    `json:"default_value" gorm:"size:255"`
 	Options       string    `json:"options" gorm:"type:text"` // JSON string for select options
 	Required      bool      `json:"required" gorm:"default:false"`
